@@ -69,7 +69,6 @@ int giveSeed(WINDOW * win, int winwidth, int winlength){
     int seed = -1;
 
     echo();
-    //nodelay(stdscr, FALSE);
 
     mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");        
     mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE THE SEED : ");
@@ -87,7 +86,6 @@ int giveSeed(WINDOW * win, int winwidth, int winlength){
     }
 
     noecho();
-    //nodelay(stdscr, TRUE);
 
     seed = atoi(cseed);
 
@@ -119,7 +117,6 @@ char* createName(WINDOW * win, int winwidth, int winlength){
 
     int nb_door = 4;
      
-    //nodelay(stdscr, FALSE);
     wclear(win);
 
     echo();
@@ -152,8 +149,9 @@ char* createName(WINDOW * win, int winwidth, int winlength){
 
         wrefresh(win);
 
+
         c = getch();
-        usleep(9000);
+        
 
         if(c == 'r'){
             echo();
@@ -183,7 +181,6 @@ char* createName(WINDOW * win, int winwidth, int winlength){
     }
 
     wclear(win);
-    //nodelay(stdscr, TRUE);
 
     return name;
 
@@ -260,13 +257,15 @@ Room createRoom(int nb_porte){
         exit(3);
     }
 
-    for(int i = 0; i<nb_porte, i++){
+    for(int i = 0; i<nb_porte; i++){
         law.nbdoor[i] = placeNbDoor();
     }
 
     law.nbevent = (rand()%4)+1;
 
     law.room = NULL;
+
+    return law;
 
 
 
@@ -325,15 +324,13 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         box(win, 0,0);
 
         // PLACE ROOM...
-
+        
         wrefresh(win);
 
 
         
-
-        
         ch = getch();
-        usleep(9000);
+        
 
 
 
@@ -461,7 +458,7 @@ void startAnim(WINDOW * win, int winlength, int winwidth, int posx, int posy, in
     }
 
     wrefresh(win);
-    usleep(30000);
+    usleep(50000);
     wclear(win);
     }
     
@@ -484,7 +481,7 @@ void quitAnim(WINDOW * win, int winlength, int winwidth, int posx, int posy, int
     }
 
     wrefresh(win);
-    usleep(30000);
+    usleep(50000);
     wclear(win);
     }
 }
@@ -545,7 +542,6 @@ void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy
         wrefresh(win);
 
         chr = getch();
-        usleep(9000);
 
         wclear(win);
 
@@ -587,7 +583,7 @@ int main(){
     
     initscr();
     keypad(stdscr, TRUE);
-    nodelay(stdscr, TRUE);
+    wtimeout(stdscr, 100);
     noecho();
 
 
