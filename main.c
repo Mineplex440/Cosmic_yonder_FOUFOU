@@ -4,7 +4,14 @@
 #include <locale.h>
 #include <time.h>
 #include <string.h>
+
 #define ENTER 10
+
+typedef struct{
+    int hours;
+    int min;
+    int sec;
+}Time;
 
 typedef struct{
     int posx;
@@ -12,14 +19,21 @@ typedef struct{
     char * name;
     int pv;
     int exp;
+    int level;
     char ** inventory;
 }Player;
+
+typedef struct{
+    int verif;
+    int wall;
+    int pos;
+}Door;
 
 typedef struct{
     int length;
     int width;
     int nbevent;
-    int nbdoor;
+    Door * nbdoor;
     char **room;
 }Room;
 
@@ -60,15 +74,15 @@ int giveSeed(WINDOW * win, int winwidth, int winlength){
     mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");        
     mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE THE SEED : ");
     wrefresh(win);
-    wgetnstr(win, cseed, 99);
+    wgetnstr(win, cseed, 6);
     wclear(win);
 
 
-    while(isInt(cseed)!=1 || atoi(cseed) > 1000000 || atoi(cseed) <= 0){
+    while(isInt(cseed)!=1 || atoi(cseed) > 999999 || atoi(cseed) <= 0){
         mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
-        mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE A CORRECT SEED, BETWEEN 1 AND 1000000 : ");
+        mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE A CORRECT SEED, BETWEEN 1 AND 999999 : ");
         wrefresh(win);
-        wgetnstr(win, cseed, 99);
+        wgetnstr(win, cseed, 6);
         wclear(win);
     }
 
@@ -101,10 +115,15 @@ char* createName(WINDOW * win, int winwidth, int winlength){
 
     int c = 0;
 
-    //wclear(win);
+    int nb_room = 15;
+
+    int nb_door = 4;
+     
+    //nodelay(stdscr, FALSE);
+    wclear(win);
 
     echo();
-    //nodelay(stdscr, FALSE);
+    
 
     mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
     mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE YOUR NAME : ");
@@ -112,6 +131,17 @@ char* createName(WINDOW * win, int winwidth, int winlength){
     wgetnstr(win, ch, 99);
 
     noecho();    
+
+    while(ch[0] == '\0'){
+
+    echo();
+    mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
+    mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE A CORRECT NAME : ");
+    wrefresh(win);
+    wgetnstr(win, ch, 99);
+    noecho(); 
+
+    }
 
     do{ 
 
@@ -123,6 +153,7 @@ char* createName(WINDOW * win, int winwidth, int winlength){
         wrefresh(win);
 
         c = getch();
+        usleep(9000);
 
         if(c == 'r'){
             echo();
@@ -134,13 +165,18 @@ char* createName(WINDOW * win, int winwidth, int winlength){
             noecho();
         }
 
-    }while(c != 10);
+    }while(c != 10 || ch[0] == '\0');
 
     int namesize = strlen(ch);
 
     char * name = NULL;
 
     name = malloc((namesize+1)*sizeof(char));
+
+    if(name == NULL){
+        printf("problem with the allocation of the name\n");
+        exit(2);
+    }
 
     for(int i = 0; i<namesize+1; i++){
         name[i] = ch[i];
@@ -166,6 +202,86 @@ char* createName(WINDOW * win, int winwidth, int winlength){
 
 
 
+Time createTime(int time){
+
+    Time tim;
+
+    if(time >= 60){
+        tim.sec = time%60;
+        time = time / 60;
+
+        if(time >= 60){
+            tim.min = time % 60;
+            tim.hours = time /60;
+        }
+        else{
+            tim.hours = 0;
+            tim.min = time;
+        }
+    }
+    else{
+        tim.hours = 0;
+        tim.min = 0;
+        tim.sec = time;
+    }
+
+    return tim;
+}
+
+
+
+
+
+
+
+
+Door placeNbDoor(){
+    Door d;
+    return d;
+}
+
+
+
+
+
+
+Room createRoom(int nb_porte){
+    Room law;
+
+    law.length = (rand()%7)+3;
+    law.width = (rand()%7)+3;
+
+    law.nbdoor = NULL;
+
+    law.nbdoor = malloc(sizeof(Door)*nb_porte);
+
+    if(law.nbdoor == NULL){
+        printf("Error with the door allocation");
+        exit(3);
+    }
+
+    for(int i = 0; i<nb_porte, i++){
+        law.nbdoor[i] = placeNbDoor();
+    }
+
+    law.nbevent = (rand()%4)+1;
+
+    law.room = NULL;
+
+
+
+
+}
+
+
+
+
+
+
+
+
+
+
 void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwidth){
     
 
@@ -176,6 +292,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     int seed = giveSeed(win, winwidth, winlength);
 
+    srand(seed);
+
     Player j;
 
     j.name = createName(win, winwidth, winlength);
@@ -183,33 +301,51 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
 
 
-    mvwprintw(stdscr, winposy-1, winposx+(winwidth/2)-13, "匚ㄖ丂爪丨匚  ㄚㄖ几ᗪ乇尺\n");
-    mvwprintw(stdscr, winposy-1, winposx+1, "ACTUAL SEED : %d", seed);
-    
+
+
     int t = (time(NULL));
 
     int te = time(NULL);
 
+    Time tim;
+
+
+
 
     while(ch != 10){
-        
+
+
+        te = time(NULL);
+        tim = createTime(te-t);    
+        mvwprintw(stdscr, winposy-1, winposx+(winwidth/2)-13, "匚ㄖ丂爪丨匚  ㄚㄖ几ᗪ乇尺\n");
+        mvwprintw(stdscr, winposy-1, winposx+1, "CURRENT SEED : %d", seed);
+        mvwprintw(stdscr, winlength+winposy+1, winposx+1, "TIME : %d h, %d min, %d sec", tim.hours, tim.min, tim.sec);
+
+
         box(win, 0,0);
+
+        // PLACE ROOM...
 
         wrefresh(win);
 
 
-        te = time(NULL);
-        mvwprintw(stdscr, winlength+winposy+1, winposx+1, "TIME : %d", te-t);
+        
+
+        
         ch = getch();
+        usleep(9000);
+
+
+
 
         wclear(win);
+        wclear(stdscr);
 
 
         
 
     }
 
-    wclear(stdscr);
 
 
 
@@ -354,6 +490,25 @@ void quitAnim(WINDOW * win, int winlength, int winwidth, int posx, int posy, int
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy){
 
     
@@ -388,7 +543,10 @@ void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy
         box(win, 0,0);
         
         wrefresh(win);
+
         chr = getch();
+        usleep(9000);
+
         wclear(win);
 
         if (chr == ENTER && posy == y+beg){
@@ -445,7 +603,7 @@ int main(){
     win = subwin(stdscr,winlength, winwidth, winposy, winposx);
 
     if (win == NULL){
-        printf("allocation problem, try to modify the size of your terminal");
+        printf("allocation problem, try to modify the size of your terminal\n");
         exit(1);
     }
 
