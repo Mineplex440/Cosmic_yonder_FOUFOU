@@ -69,9 +69,11 @@ int giveSeed(WINDOW * win, int winwidth, int winlength){
     int seed = -1;
 
     echo();
+    //nodelay(stdscr, FALSE);
 
     mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");        
     mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE THE SEED : ");
+    usleep(30000);
     wrefresh(win);
     wgetnstr(win, cseed, 6);
     wclear(win);
@@ -80,12 +82,14 @@ int giveSeed(WINDOW * win, int winwidth, int winlength){
     while(isInt(cseed)!=1 || atoi(cseed) > 999999 || atoi(cseed) <= 0){
         mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
         mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE A CORRECT SEED, BETWEEN 1 AND 999999 : ");
+        usleep(30000);
         wrefresh(win);
         wgetnstr(win, cseed, 6);
         wclear(win);
     }
 
     noecho();
+    //nodelay(stdscr, TRUE);
 
     seed = atoi(cseed);
 
@@ -117,6 +121,7 @@ char* createName(WINDOW * win, int winwidth, int winlength){
 
     int nb_door = 4;
      
+    //nodelay(stdscr, FALSE);
     wclear(win);
 
     echo();
@@ -124,6 +129,7 @@ char* createName(WINDOW * win, int winwidth, int winlength){
 
     mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
     mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE YOUR NAME : ");
+    usleep(30000);
     wrefresh(win);
     wgetnstr(win, ch, 99);
 
@@ -134,6 +140,7 @@ char* createName(WINDOW * win, int winwidth, int winlength){
     echo();
     mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
     mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE A CORRECT NAME : ");
+    usleep(30000);
     wrefresh(win);
     wgetnstr(win, ch, 99);
     noecho(); 
@@ -146,19 +153,21 @@ char* createName(WINDOW * win, int winwidth, int winlength){
         mvwprintw(win, (winlength/2)-1, (winwidth/2)-20, "[r] TO RESET |");
         mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
         mvwprintw(win, (winlength/2), (winwidth/2)-5, " YOU CONFIRM THE PSEUDO : %s ?", ch);
+        usleep(30000);
 
         wrefresh(win);
 
-
         c = getch();
-        
+        usleep(30000);
 
         if(c == 'r'){
             echo();
             wclear(win);
             mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
             mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE YOUR NAME : ");
+            usleep(30000);
             wrefresh(win);
+            usleep(30000);
             wgetnstr(win, ch, 99);
             noecho();
         }
@@ -181,6 +190,7 @@ char* createName(WINDOW * win, int winwidth, int winlength){
     }
 
     wclear(win);
+    //nodelay(stdscr, TRUE);
 
     return name;
 
@@ -265,8 +275,6 @@ Room createRoom(int nb_porte){
 
     law.room = NULL;
 
-    return law;
-
 
 
 
@@ -324,13 +332,15 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         box(win, 0,0);
 
         // PLACE ROOM...
-        
+	usleep(30000);
         wrefresh(win);
 
 
         
-        ch = getch();
+
         
+        ch = getch();
+        usleep(30000);
 
 
 
@@ -456,9 +466,9 @@ void startAnim(WINDOW * win, int winlength, int winwidth, int posx, int posy, in
             mvwprintw(win, j, l,"-");
         }
     }
-
+	usleep(30000);
     wrefresh(win);
-    usleep(50000);
+    usleep(100000);
     wclear(win);
     }
     
@@ -479,9 +489,9 @@ void quitAnim(WINDOW * win, int winlength, int winwidth, int posx, int posy, int
             mvwprintw(win, j, l,"-");
         }
     }
-
+    usleep(30000);
     wrefresh(win);
-    usleep(50000);
+    usleep(100000);
     wclear(win);
     }
 }
@@ -538,10 +548,11 @@ void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy
 
         
         box(win, 0,0);
-        
+        usleep(30000);
         wrefresh(win);
 
         chr = getch();
+        usleep(30000);
 
         wclear(win);
 
@@ -583,7 +594,7 @@ int main(){
     
     initscr();
     keypad(stdscr, TRUE);
-    wtimeout(stdscr, 100);
+    nodelay(stdscr, TRUE);
     noecho();
 
 
