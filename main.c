@@ -260,7 +260,7 @@ Room createRoom(int nb_porte){
         exit(3);
     }
 
-    for(int i = 0; i<nb_porte, i++){
+    for(int i = 0; i<nb_porte; i++){
         law.nbdoor[i] = placeNbDoor();
     }
 
