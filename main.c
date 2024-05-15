@@ -6,6 +6,7 @@
 #include <string.h>
 
 #define ENTER 10
+#define NB_MOVE 4
 
 typedef struct{
     int hours;
@@ -14,27 +15,53 @@ typedef struct{
 }Time;
 
 typedef struct{
-    int posx;
-    int posy;
-    char * name;
+    int nbmove;
+    int power;
+    int accuracy;
+}Spell;
+
+typedef struct{
     int pv;
     int exp;
     int level;
+    int strenth;
+    Spell move[NB_MOVE];
+}Stat;
+
+typedef struct{
+    int posx;
+    int posy;
+    char * name;
+    Stat playerStat;
     char ** inventory;
 }Player;
 
 typedef struct{
-    int verif;
+    int howmuchroom;
+    int remote;
     int wall;
     int pos;
 }Door;
 
 typedef struct{
+    int pv;
+    //...
+}Mob;
+
+typedef struct{
+    int placex;
+    int placey;
+    int typeEvent;
+}Event;
+
+typedef struct{
+    int nb;
     int length;
     int width;
     int nbevent;
-    Door * nbdoor;
-    char **room;
+    Event * event;
+    Door nbdoor[4];
+    char ** room;
 }Room;
 
 
@@ -52,23 +79,13 @@ int isInt(char * ch){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 int giveSeed(WINDOW * win, int winwidth, int winlength){
 
-    char cseed[100];
+    char cseed[7];
     int seed = -1;
 
     echo();
+
 
     mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");        
     mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE THE SEED : ");
@@ -85,6 +102,7 @@ int giveSeed(WINDOW * win, int winwidth, int winlength){
         wclear(win);
     }
 
+
     noecho();
 
     seed = atoi(cseed);
@@ -95,52 +113,43 @@ int giveSeed(WINDOW * win, int winwidth, int winlength){
 
 
 
+void giveName(WINDOW * win, char ch[], int winlength, int winwidth){
 
+    echo();
+    
+    mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
+    mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE YOUR NAME : ");
+    wrefresh(win);
+    wgetnstr(win, ch, 35);
+    
 
+    while(ch[0] == '\0'){
 
+        wclear(win);
+        mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
+        mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE A CORRECT NAME : ");
+        wrefresh(win);
+        wgetnstr(win, ch, 35);
 
+    }
 
-
-
-
-
+    noecho(); 
+}
 
 
 
 
 char* createName(WINDOW * win, int winwidth, int winlength){
-    char ch[100];
+    char ch[36];
 
     int c = 0;
-
-    int nb_room = 15;
-
-    int nb_door = 4;
      
     wclear(win);
 
-    echo();
-    
+    giveName(win, ch, winlength, winwidth);
 
-    mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
-    mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE YOUR NAME : ");
-    wrefresh(win);
-    wgetnstr(win, ch, 99);
 
-    noecho();    
-
-    while(ch[0] == '\0'){
-
-    echo();
-    mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
-    mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE A CORRECT NAME : ");
-    wrefresh(win);
-    wgetnstr(win, ch, 99);
-    noecho(); 
-
-    }
-
-    do{ 
+    do{ //Confirm the name
 
         wclear(win);
         mvwprintw(win, (winlength/2)-1, (winwidth/2)-20, "[r] TO RESET |");
@@ -154,16 +163,15 @@ char* createName(WINDOW * win, int winwidth, int winlength){
         
 
         if(c == 'r'){
-            echo();
+            
             wclear(win);
-            mvwprintw(win, (winlength/2), (winwidth/2)-20, "<┘ TO CONFIRM |");
-            mvwprintw(win, (winlength/2), (winwidth/2)-5, " GIVE YOUR NAME : ");
-            wrefresh(win);
-            wgetnstr(win, ch, 99);
-            noecho();
+            
+            giveName(win, ch, winlength, winwidth);
+
         }
 
-    }while(c != 10 || ch[0] == '\0');
+    }while(c != ENTER || ch[0] == '\0');
+
 
     int namesize = strlen(ch);
 
@@ -188,38 +196,25 @@ char* createName(WINDOW * win, int winwidth, int winlength){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
 Time createTime(int time){
 
     Time tim;
 
-    if(time >= 60){
-        tim.sec = time%60;
-        time = time / 60;
+    tim.sec = time;
+    tim.min = 0;
+    tim.hours = 0;
 
-        if(time >= 60){
-            tim.min = time % 60;
-            tim.hours = time /60;
-        }
-        else{
-            tim.hours = 0;
-            tim.min = time;
-        }
+    if(tim.sec >= 60){
+        tim.min = tim.sec / 60;
+        tim.sec = tim.sec%60;
+        
     }
-    else{
-        tim.hours = 0;
-        tim.min = 0;
-        tim.sec = time;
+
+    if(tim.min >= 60){
+
+        tim.hours = tim.min / 60;
+        tim.min = tim.min % 60;
+        
     }
 
     return tim;
@@ -228,12 +223,28 @@ Time createTime(int time){
 
 
 
-
-
-
-
-Door placeNbDoor(){
+Door placeNbDoor(int length, int width ,int tot_door, int nb_door, int i, int count){
     Door d;
+
+
+
+    if(nb_door == 4){
+        d.wall = 1;
+        if(i == 1 || i == 3){
+            d.pos = ((rand()%100)%width-1)+1;
+        }
+        else{
+            d.pos = ((rand()%100)%length-1)+1;
+        }
+        d.remote = count;
+
+        d.howmuchroom = (rand()%100)%(tot_door/nb_door)+1;
+
+    }
+
+
+
+
     return d;
 }
 
@@ -242,28 +253,76 @@ Door placeNbDoor(){
 
 
 
-Room createRoom(int nb_porte){
+Room createRoom(int nb_door, int tot_door, int nb_room, int previous_room,int * count){
+
     Room law;
 
-    law.length = (rand()%7)+3;
-    law.width = (rand()%7)+3;
+    law.nb = nb_room;
 
-    law.nbdoor = NULL;
+    law.length = ((rand()%100)%9)+3;
 
-    law.nbdoor = malloc(sizeof(Door)*nb_porte);
+    law.width = ((rand()%100)%9)+3;
 
-    if(law.nbdoor == NULL){
-        printf("Error with the door allocation");
-        exit(3);
+    if(previous_room == -1){
+
+        for(int i = 0; i<4; i++){
+
+            *count += 1;
+
+            if(tot_door <= tot_door%nb_door ){
+                law.nbdoor[i] = placeNbDoor(law.length, law.width,tot_door, nb_door, i, *count);
+            }
+            else{
+                law.nbdoor[i] = placeNbDoor(law.length, law.width,tot_door, nb_door, i, *count);
+            }
+
+        }
+
     }
+    
 
-    for(int i = 0; i<nb_porte; i++){
-        law.nbdoor[i] = placeNbDoor();
-    }
 
-    law.nbevent = (rand()%4)+1;
+
+    law.nbevent = (rand()%2)+1;
+
+
+
 
     law.room = NULL;
+
+    law.room = malloc(sizeof(char*)*(law.width + 2));
+
+    if(law.room == NULL){
+        printf("Error with the room allocation \n");
+        exit(4);
+    }
+
+    for (int i = 0; i<law.width+2; i++){
+        law.room[i] = NULL;
+        law.room[i] = malloc(sizeof(char)*(law.length + 2));
+        if (law.room[i] == NULL){
+            printf("Error with the room allocation \n");
+            exit(5);
+        }
+    }
+
+    for(int i = 1; i<law.length+1; i++){
+        law.room[0][i] = '_';
+        law.room[law.width+1][i] = '_';
+    }
+    for(int i = 1; i<law.width+1; i++){
+        law.room[i][0] = '|';
+        law.room[i][law.length+1] = '|';
+    }
+    law.room[0][0] = 'a';
+    law.room[0][law.length+1] = 'b';
+    law.room[law.width+1][0] = 'c';
+    law.room[law.width+1][law.length+1] = 'd';
+
+
+
+
+
 
     return law;
 
@@ -273,7 +332,13 @@ Room createRoom(int nb_porte){
 }
 
 
-
+void printmap(WINDOW * win, int winlength, int winwidth, Room law){
+    for (int i = 0; i<law.width+2; i++){
+        for(int j = 0; j <law.length+2; j++){
+            mvwprintw(win, (winlength/2) - (law.width/2) + i , (winwidth/2) - (law.length/2) + j, "%c", law.room[i][j]);
+        }
+    }
+}
 
 
 
@@ -297,10 +362,40 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     j.name = createName(win, winwidth, winlength);
 
+    
 
 
 
+    int tot_room = ((rand()%100)%10)+10;
+    int tot_door = tot_room -1;
+    int nb_door = 4;
+    int place = 0;
+    int place_before = -1;
+    int count = 0;
 
+    Room * room = NULL;
+
+    room = calloc(sizeof(Room), tot_room);
+
+    if(room == NULL){
+        printf("Error with the allocation of the room");
+        exit(6);
+    }
+
+    room[place] = createRoom(nb_door, tot_door, place, place_before, &count);
+
+    j.posx = winwidth/2;
+    j.posy = winlength/2;
+
+
+    char ** map = NULL;
+
+    map = malloc(sizeof(char*) * ((room->width)+2));
+
+    if(map == NULL){
+        printf("Error with the allocation of the room");
+        exit(7);
+    }
 
     int t = (time(NULL));
 
@@ -311,7 +406,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
 
 
-    while(ch != 10){
+    while(ch != ENTER){
 
 
         te = time(NULL);
@@ -319,17 +414,60 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         mvwprintw(stdscr, winposy-1, winposx+(winwidth/2)-13, "匚ㄖ丂爪丨匚  ㄚㄖ几ᗪ乇尺\n");
         mvwprintw(stdscr, winposy-1, winposx+1, "CURRENT SEED : %d", seed);
         mvwprintw(stdscr, winlength+winposy+1, winposx+1, "TIME : %d h, %d min, %d sec", tim.hours, tim.min, tim.sec);
+        mvwprintw(stdscr, 0, 0, "%d", (room+place)->width);
+        mvwprintw(stdscr, 1, 0, "%d", (room+place)->length);
 
 
         box(win, 0,0);
 
+        printmap(win, winlength, winwidth, room[place]);
+
+        mvwprintw(win, j.posy, j.posx, "☃");
         // PLACE ROOM...
+
+        
         
         wrefresh(win);
 
 
         
         ch = getch();
+
+        if (ch == KEY_UP || room[place].nbdoor[0].wall == 1){
+            place_before = room[place].nb;
+            place = room[place].nbdoor[0].remote;
+            if(room[place].nbdoor[2].wall == 0 ){
+                tot_door = room[place_before].nbdoor[0].howmuchroom;
+                room[place] = createRoom(nb_door, tot_door, place, place_before, &count);
+            }
+            
+                
+        }
+        if (ch == KEY_DOWN || room[place].nbdoor[2].wall == 1){
+            place_before = room[place].nb;
+            place = room[place].nbdoor[2].remote;
+            if(room[place].nbdoor[0].wall == 0 ){
+                tot_door = room[place_before].nbdoor[2].howmuchroom;
+                room[place] = createRoom(nb_door, tot_door, place, place_before, &count);
+            }
+        }
+        if (ch == KEY_LEFT || room[place].nbdoor[3].wall == 1){
+            place_before = room[place].nb;
+            place = room[place].nbdoor[3].remote;
+            if(room[place].nbdoor[1].wall == 0 ){
+                tot_door = room[place_before].nbdoor[3].howmuchroom;
+                room[place] = createRoom(nb_door, tot_door, place, place_before, &count);
+            }
+        }
+        if (ch == KEY_RIGHT || room[place].nbdoor[1].wall == 1){
+            place_before = room[place].nb;
+            place = room[place].nbdoor[1].remote;
+            if(room[place].nbdoor[3].wall == 0 ){
+                tot_door = room[place_before].nbdoor[1].howmuchroom;
+                room[place] = createRoom(nb_door, tot_door, place, place_before, &count);
+            }
+        }
+        
         
 
 
@@ -369,39 +507,9 @@ void loadSave(WINDOW * win){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 void setting(WINDOW * win){
     wclear(win);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -420,23 +528,6 @@ void printMenu(WINDOW *win,int x, int y, int beg, int space){
 
     mvwprintw(win, y+(beg+(space*3)), x,"QUIT\n");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -464,6 +555,8 @@ void startAnim(WINDOW * win, int winlength, int winwidth, int posx, int posy, in
     
 }
 
+
+
 void quitAnim(WINDOW * win, int winlength, int winwidth, int posx, int posy, int x, int y, int beg, int space){
 
     for(int i = 0; i<winlength; i++){
@@ -485,22 +578,6 @@ void quitAnim(WINDOW * win, int winlength, int winwidth, int posx, int posy, int
     wclear(win);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
