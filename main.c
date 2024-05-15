@@ -60,7 +60,7 @@ typedef struct{
     int width;
     int nbevent;
     Event * event;
-    Door nbdoor[4];
+    Door * nbdoor;
     char ** room;
 }Room;
 
@@ -223,27 +223,86 @@ Time createTime(int time){
 
 
 
-Door placeNbDoor(int length, int width ,int tot_door, int nb_door, int i, int count){
-    Door d;
+Door * placeNbDoor(int pressed, int previous_room, int length, int width, int toremove, int res, int tot_door, int nb_door, int * count){
+    Door *d = NULL;
 
+    int pos = 0;
 
+    d = malloc(sizeof(Door)*4);
 
-    if(nb_door == 4){
-        d.wall = 1;
-        if(i == 1 || i == 3){
-            d.pos = ((rand()%100)%width-1)+1;
-        }
-        else{
-            d.pos = ((rand()%100)%length-1)+1;
-        }
-        d.remote = count;
-
-        d.howmuchroom = (rand()%100)%(tot_door/nb_door)+1;
-
+    if(d == NULL){
+        printf("Error with the Door allocation");
+        exit(8);
     }
 
+    if( pressed < 0){
+        for(int i = 0; i<4; i++){
+            if(nb_door > 0){
+                pos = (rand()%100)%4;
+
+                while(d[pos].wall == 1){
+                    pos = (rand()%100)%4;
+                }
+
+                d[pos].wall = 1;
+                *count += 1;
+                d[pos].remote = *count;
+                if(i == 3){
+                    d[pos].howmuchroom = ((rand()%100)%res)+1;
+                }
+                else{
+                   d[pos].howmuchroom = (rand()%100)%(toremove)+1; 
+                }
+                
+                if(pos == 1 || pos == 3){
+                    d[pos].pos = ((rand()%100)%(width-1))+1;
+                }
+                else{
+                    d[pos].pos = ((rand()%100)%(length-1))+1;
+                }
 
 
+                nb_door--;
+            }        
+        }
+    }
+    else{
+        d[pressed].wall = 1;
+        d[pressed].howmuchroom = 1;
+        if(pressed == 1 || pressed == 3){
+            d[pressed].pos = ((rand()%100)%(width-1))+1;
+        }
+        else{
+            d[pressed].pos = ((rand()%100)%(length-1))+1;
+        }
+        d[pressed].remote = previous_room;
+
+        for(int i = 0; i<3; i++){
+            if(nb_door > 0){
+                pos = (rand()%100)%4;
+
+                while(d[pos].wall == 1){
+                    pos = (rand()%100)%4;
+                }
+
+                d[pos].wall = 1;
+                *count += 1;
+                d[pos].remote = *count;
+                d[pos].howmuchroom = (rand()%100)%(toremove)+1;
+                if(pos == 1 || pos == 3){
+                    d[pos].pos = ((rand()%100)%(width-1))+1;
+                }
+                else{
+                    d[pos].pos = ((rand()%100)%(length-1))+1;
+                }
+
+
+                nb_door--;
+            }        
+        }
+
+
+    }
 
     return d;
 }
@@ -253,9 +312,12 @@ Door placeNbDoor(int length, int width ,int tot_door, int nb_door, int i, int co
 
 
 
-Room createRoom(int nb_door, int tot_door, int nb_room, int previous_room,int * count){
+Room createRoom(int pressed, int nb_door, int tot_door, int nb_room, int previous_room,int * count){
 
     Room law;
+
+    int toremove = tot_door/nb_door;
+    int res = tot_door%nb_door;
 
     law.nb = nb_room;
 
@@ -263,22 +325,10 @@ Room createRoom(int nb_door, int tot_door, int nb_room, int previous_room,int * 
 
     law.width = ((rand()%100)%9)+3;
 
-    if(previous_room == -1){
 
-        for(int i = 0; i<4; i++){
 
-            *count += 1;
+    law.nbdoor = placeNbDoor(pressed, previous_room, law.length, law.width, toremove, res, tot_door,nb_door, count);
 
-            if(tot_door <= tot_door%nb_door ){
-                law.nbdoor[i] = placeNbDoor(law.length, law.width,tot_door, nb_door, i, *count);
-            }
-            else{
-                law.nbdoor[i] = placeNbDoor(law.length, law.width,tot_door, nb_door, i, *count);
-            }
-
-        }
-
-    }
     
 
 
@@ -318,6 +368,20 @@ Room createRoom(int nb_door, int tot_door, int nb_room, int previous_room,int * 
     law.room[0][law.length+1] = 'b';
     law.room[law.width+1][0] = 'c';
     law.room[law.width+1][law.length+1] = 'd';
+
+
+    if(law.nbdoor[0].wall == 1){
+        law.room[0][law.nbdoor[0].pos] = 'p';
+    }
+    if(law.nbdoor[1].wall == 1){
+        law.room[law.nbdoor[1].pos][law.length+1] = 'p';
+    }
+    if(law.nbdoor[2].wall == 1){
+        law.room[law.width+1][law.nbdoor[2].pos] = 'p';
+    }
+    if(law.nbdoor[3].wall == 1){
+        law.room[law.nbdoor[3].pos][0] = 'p';
+    }
 
 
 
@@ -375,14 +439,14 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     Room * room = NULL;
 
-    room = calloc(sizeof(Room), tot_room);
+    room = calloc(tot_room, sizeof(Room));
 
     if(room == NULL){
         printf("Error with the allocation of the room");
         exit(6);
     }
 
-    room[place] = createRoom(nb_door, tot_door, place, place_before, &count);
+    room[place] = createRoom(-1 ,nb_door, tot_door, place, place_before, &count);
 
     j.posx = winwidth/2;
     j.posy = winlength/2;
@@ -414,8 +478,14 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         mvwprintw(stdscr, winposy-1, winposx+(winwidth/2)-13, "匚ㄖ丂爪丨匚  ㄚㄖ几ᗪ乇尺\n");
         mvwprintw(stdscr, winposy-1, winposx+1, "CURRENT SEED : %d", seed);
         mvwprintw(stdscr, winlength+winposy+1, winposx+1, "TIME : %d h, %d min, %d sec", tim.hours, tim.min, tim.sec);
-        mvwprintw(stdscr, 0, 0, "%d", (room+place)->width);
-        mvwprintw(stdscr, 1, 0, "%d", (room+place)->length);
+        //mvwprintw(stdscr, 0, 0, "%d", (room+place)->width);
+        //mvwprintw(stdscr, 1, 0, "%d", (room+place)->length);
+        //mvwprintw(stdscr, 2, 0, "%d", (room+place)->nbdoor[0].howmuchroom);
+        //mvwprintw(stdscr, 3, 0, "%d", (room+place)->nbdoor[0].pos);
+        //mvwprintw(stdscr, 4, 0, "%d", (room+place)->nbdoor[0].wall);
+        //mvwprintw(stdscr, 5, 0, "%d", (room+place)->nbdoor[0].remote);
+
+        
 
 
         box(win, 0,0);
@@ -428,43 +498,93 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         
         
         wrefresh(win);
+        wrefresh(stdscr);
 
 
         
         ch = getch();
 
-        if (ch == KEY_UP || room[place].nbdoor[0].wall == 1){
+        if (ch == KEY_UP && room[place].nbdoor[0].wall == 1){
             place_before = room[place].nb;
             place = room[place].nbdoor[0].remote;
-            if(room[place].nbdoor[2].wall == 0 ){
+            if(room[place].nbdoor == NULL ){
                 tot_door = room[place_before].nbdoor[0].howmuchroom;
-                room[place] = createRoom(nb_door, tot_door, place, place_before, &count);
+                if(tot_door >= 3){
+                    nb_door = ((rand()%100)%3)+1;
+                }
+                else if(tot_door == 2){
+                    nb_door = ((rand()%100)%2)+1;
+                }
+                else if (tot_door == 1){
+                    nb_door = 1;
+                }
+                else{
+                    nb_door = 0;
+                }
+                room[place] = createRoom(2,nb_door, tot_door, place, place_before, &count);
             }
             
                 
         }
-        if (ch == KEY_DOWN || room[place].nbdoor[2].wall == 1){
+        if (ch == KEY_DOWN && room[place].nbdoor[2].wall == 1){
             place_before = room[place].nb;
             place = room[place].nbdoor[2].remote;
-            if(room[place].nbdoor[0].wall == 0 ){
+            if(room[place].nbdoor == NULL ){
                 tot_door = room[place_before].nbdoor[2].howmuchroom;
-                room[place] = createRoom(nb_door, tot_door, place, place_before, &count);
+                if(tot_door >= 3){
+                    nb_door = ((rand()%100)%3)+1;
+                }
+                else if(tot_door == 2){
+                    nb_door = ((rand()%100)%2)+1;
+                }
+                else if (tot_door == 1){
+                    nb_door = 1;
+                }
+                else{
+                    nb_door = 0;
+                }
+                room[place] = createRoom(0,nb_door, tot_door, place, place_before, &count);
             }
         }
-        if (ch == KEY_LEFT || room[place].nbdoor[3].wall == 1){
+        if (ch == KEY_LEFT && room[place].nbdoor[3].wall == 1){
             place_before = room[place].nb;
             place = room[place].nbdoor[3].remote;
-            if(room[place].nbdoor[1].wall == 0 ){
+            if(room[place].nbdoor == NULL ){
                 tot_door = room[place_before].nbdoor[3].howmuchroom;
-                room[place] = createRoom(nb_door, tot_door, place, place_before, &count);
+                if(tot_door >= 3){
+                    nb_door = ((rand()%100)%3)+1;
+                }
+                else if(tot_door == 2){
+                    nb_door = ((rand()%100)%2)+1;
+                }
+                else if (tot_door == 1){
+                    nb_door = 1;
+                }
+                else{
+                    nb_door = 0;
+                }
+                room[place] = createRoom(1,nb_door, tot_door, place, place_before, &count);
             }
         }
-        if (ch == KEY_RIGHT || room[place].nbdoor[1].wall == 1){
+        if (ch == KEY_RIGHT && room[place].nbdoor[1].wall == 1){
             place_before = room[place].nb;
             place = room[place].nbdoor[1].remote;
-            if(room[place].nbdoor[3].wall == 0 ){
+            if(room[place].nbdoor == NULL ){
                 tot_door = room[place_before].nbdoor[1].howmuchroom;
-                room[place] = createRoom(nb_door, tot_door, place, place_before, &count);
+                if(tot_door >= 3){
+                    nb_door = ((rand()%100)%3)+1;
+                }
+                else if(tot_door == 2){
+                    nb_door = ((rand()%100)%2)+1;
+                }
+                else if (tot_door == 1){
+                    nb_door = 1;
+                }
+                else{
+                    nb_door = 0;
+                }
+                
+                room[place] = createRoom(3, nb_door, tot_door, place, place_before, &count);
             }
         }
         
