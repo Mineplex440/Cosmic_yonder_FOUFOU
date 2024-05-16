@@ -445,6 +445,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         printf("Error with the allocation of the room");
         exit(6);
     }
+    
+    tot_room -= 1; 
 
     room[place] = createRoom(tot_room ,-1 ,nb_door, tot_door, place, place_before, &count);
 
@@ -485,25 +487,27 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         mvwprintw(stdscr, 2,  winwidth+winposx+2, "width : %d", (room+place)->width);
 
 
-        mvwprintw(stdscr, 3,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].howmuchroom);
-        mvwprintw(stdscr, 4,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].pos);
-        mvwprintw(stdscr, 5,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].wall);
-        mvwprintw(stdscr, 6,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].remote);
+        mvwprintw(stdscr, 3,  winwidth+winposx+2, "howmuchroom  : %d", (room+place)->nbdoor[0].howmuchroom);
+        mvwprintw(stdscr, 4,  winwidth+winposx+2, "pos : %d", (room+place)->nbdoor[0].pos);
+        mvwprintw(stdscr, 5,  winwidth+winposx+2, "wall : %d", (room+place)->nbdoor[0].wall);
+        mvwprintw(stdscr, 6,  winwidth+winposx+2, "remote : %d", (room+place)->nbdoor[0].remote);
 
-        mvwprintw(stdscr, 7,  winwidth+winposx+2, "%d", (room+place)->nbdoor[1].howmuchroom);
-        mvwprintw(stdscr, 8,  winwidth+winposx+2, "%d", (room+place)->nbdoor[1].pos);
-        mvwprintw(stdscr, 9,  winwidth+winposx+2, "%d", (room+place)->nbdoor[1].wall);
-        mvwprintw(stdscr, 10,  winwidth+winposx+2, "%d", (room+place)->nbdoor[1].remote);
+        mvwprintw(stdscr, 8,  winwidth+winposx+2, "howmuchroom  : %d", (room+place)->nbdoor[1].howmuchroom);
+        mvwprintw(stdscr, 9,  winwidth+winposx+2, "pos : %d", (room+place)->nbdoor[1].pos);
+        mvwprintw(stdscr, 10,  winwidth+winposx+2, "wall : %d", (room+place)->nbdoor[1].wall);
+        mvwprintw(stdscr, 11,  winwidth+winposx+2, "remote : %d", (room+place)->nbdoor[1].remote);
 
-        mvwprintw(stdscr, 11,  winwidth+winposx+2, "%d", (room+place)->nbdoor[2].howmuchroom);
-        mvwprintw(stdscr, 12,  winwidth+winposx+2, "%d", (room+place)->nbdoor[2].pos);
-        mvwprintw(stdscr, 13,  winwidth+winposx+2, "%d", (room+place)->nbdoor[2].wall);
-        mvwprintw(stdscr, 14,  winwidth+winposx+2, "%d", (room+place)->nbdoor[2].remote);
+        mvwprintw(stdscr, 13,  winwidth+winposx+2, "howmuchroom  : %d", (room+place)->nbdoor[2].howmuchroom);
+        mvwprintw(stdscr, 14,  winwidth+winposx+2, "pos : %d", (room+place)->nbdoor[2].pos);
+        mvwprintw(stdscr, 15,  winwidth+winposx+2, "wall : %d", (room+place)->nbdoor[2].wall);
+        mvwprintw(stdscr, 16,  winwidth+winposx+2, "remote : %d", (room+place)->nbdoor[2].remote);
 
-        mvwprintw(stdscr, 15,  winwidth+winposx+2, "%d", (room+place)->nbdoor[3].howmuchroom);
-        mvwprintw(stdscr, 16,  winwidth+winposx+2, "%d", (room+place)->nbdoor[3].pos);
-        mvwprintw(stdscr, 17,  winwidth+winposx+2, "%d", (room+place)->nbdoor[3].wall);
-        mvwprintw(stdscr, 18,  winwidth+winposx+2, "%d", (room+place)->nbdoor[3].remote);
+        mvwprintw(stdscr, 18,  winwidth+winposx+2, "howmuchroom  : %d", (room+place)->nbdoor[3].howmuchroom);
+        mvwprintw(stdscr, 19,  winwidth+winposx+2, "pos : %d", (room+place)->nbdoor[3].pos);
+        mvwprintw(stdscr, 20,  winwidth+winposx+2, "wall : %d", (room+place)->nbdoor[3].wall);
+        mvwprintw(stdscr, 21,  winwidth+winposx+2, "remote : %d", (room+place)->nbdoor[3].remote);
+        
+        mvwprintw(stdscr, 23,  winwidth+winposx+2, "tot room : %d", tot_room);
 
         
 
