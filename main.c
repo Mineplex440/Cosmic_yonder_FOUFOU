@@ -223,7 +223,7 @@ Time createTime(int time){
 
 
 
-Door * placeNbDoor(int pressed, int previous_room, int length, int width, int toremove, int res, int tot_door, int nb_door, int * count){
+Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length, int width, int toremove, int res, int tot_door, int nb_door, int * count){
     Door *d = NULL;
 
     int pos = 0;
@@ -237,7 +237,7 @@ Door * placeNbDoor(int pressed, int previous_room, int length, int width, int to
 
     if( pressed < 0){
         for(int i = 0; i<4; i++){
-            if(nb_door > 0){
+            if(nb_door > 0 && *count <= realtot_door){
                 pos = (rand()%100)%4;
 
                 while(d[pos].wall == 1){
@@ -278,7 +278,7 @@ Door * placeNbDoor(int pressed, int previous_room, int length, int width, int to
         d[pressed].remote = previous_room;
 
         for(int i = 0; i<3; i++){
-            if(nb_door > 0){
+            if(nb_door > 0  && *count <= realtot_door){
                 pos = (rand()%100)%4;
 
                 while(d[pos].wall == 1){
@@ -312,7 +312,7 @@ Door * placeNbDoor(int pressed, int previous_room, int length, int width, int to
 
 
 
-Room createRoom(int pressed, int nb_door, int tot_door, int nb_room, int previous_room,int * count){
+Room createRoom(int realtot_door, int pressed, int nb_door, int tot_door, int nb_room, int previous_room,int * count){
 
     Room law;
 
@@ -327,7 +327,7 @@ Room createRoom(int pressed, int nb_door, int tot_door, int nb_room, int previou
 
 
 
-    law.nbdoor = placeNbDoor(pressed, previous_room, law.length, law.width, toremove, res, tot_door,nb_door, count);
+    law.nbdoor = placeNbDoor(realtot_door ,pressed, previous_room, law.length, law.width, toremove, res, tot_door,nb_door, count);
 
     
 
@@ -446,7 +446,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         exit(6);
     }
 
-    room[place] = createRoom(-1 ,nb_door, tot_door, place, place_before, &count);
+    room[place] = createRoom(tot_room ,-1 ,nb_door, tot_door, place, place_before, &count);
 
     j.posx = winwidth/2;
     j.posy = winlength/2;
@@ -478,12 +478,13 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         mvwprintw(stdscr, winposy-1, winposx+(winwidth/2)-13, "匚ㄖ丂爪丨匚  ㄚㄖ几ᗪ乇尺\n");
         mvwprintw(stdscr, winposy-1, winposx+1, "CURRENT SEED : %d", seed);
         mvwprintw(stdscr, winlength+winposy+1, winposx+1, "TIME : %d h, %d min, %d sec", tim.hours, tim.min, tim.sec);
-        //mvwprintw(stdscr, 0, 0, "%d", (room+place)->width);
-        //mvwprintw(stdscr, 1, 0, "%d", (room+place)->length);
-        //mvwprintw(stdscr, 2, 0, "%d", (room+place)->nbdoor[0].howmuchroom);
-        //mvwprintw(stdscr, 3, 0, "%d", (room+place)->nbdoor[0].pos);
-        //mvwprintw(stdscr, 4, 0, "%d", (room+place)->nbdoor[0].wall);
-        //mvwprintw(stdscr, 5, 0, "%d", (room+place)->nbdoor[0].remote);
+        mvwprintw(stdscr, 0, winwidth+winposx+2, "We are on the room %d", (room+place)->nb);
+        mvwprintw(stdscr, 1,  winwidth+winposx+2, "length : %d", (room+place)->length);
+        mvwprintw(stdscr, 2,  winwidth+winposx+2, "width : %d", (room+place)->width);
+        mvwprintw(stdscr, 3,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].howmuchroom);
+        mvwprintw(stdscr, 4,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].pos);
+        mvwprintw(stdscr, 5,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].wall);
+        mvwprintw(stdscr, 6,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].remote);
 
         
 
@@ -521,7 +522,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                 else{
                     nb_door = 0;
                 }
-                room[place] = createRoom(2,nb_door, tot_door, place, place_before, &count);
+                room[place] = createRoom(tot_room,2,nb_door, tot_door, place, place_before, &count);
             }
             
                 
@@ -543,7 +544,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                 else{
                     nb_door = 0;
                 }
-                room[place] = createRoom(0,nb_door, tot_door, place, place_before, &count);
+                room[place] = createRoom(tot_room,0,nb_door, tot_door, place, place_before, &count);
             }
         }
         if (ch == KEY_LEFT && room[place].nbdoor[3].wall == 1){
@@ -563,7 +564,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                 else{
                     nb_door = 0;
                 }
-                room[place] = createRoom(1,nb_door, tot_door, place, place_before, &count);
+                room[place] = createRoom(tot_room,1,nb_door, tot_door, place, place_before, &count);
             }
         }
         if (ch == KEY_RIGHT && room[place].nbdoor[1].wall == 1){
@@ -584,7 +585,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     nb_door = 0;
                 }
                 
-                room[place] = createRoom(3, nb_door, tot_door, place, place_before, &count);
+                room[place] = createRoom(tot_room,3, nb_door, tot_door, place, place_before, &count);
             }
         }
         
