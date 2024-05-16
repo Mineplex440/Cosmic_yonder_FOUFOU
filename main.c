@@ -223,7 +223,7 @@ Time createTime(int time){
 
 
 
-Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length, int width, int toremove, int res, int tot_door, int nb_door, int * count){
+Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length, int width, int tot_door, int nb_door, int * count){
     Door *d = NULL;
 
     int pos = 0;
@@ -235,9 +235,12 @@ Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length,
         exit(8);
     }
 
-    if( pressed < 0){
+    int toplaced = tot_door;
+
+    if( pressed < 0){    
+        int toremove = tot_door/(nb_door);
         for(int i = 0; i<4; i++){
-            if(nb_door > 0 && *count < realtot_door){
+            if(nb_door > 0 && tot_door > 0 && *count < realtot_door){
                 pos = (rand()%100)%4;
 
                 while(d[pos].wall == 1){
@@ -247,12 +250,35 @@ Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length,
                 d[pos].wall = 1;
                 *count += 1;
                 d[pos].remote = *count;
-                if(i == 3){
-                    d[pos].howmuchroom = ((rand()%100)%res)+1;
+
+                if(toremove > 1){
+                    if(nb_door == toplaced){
+                        d[pos].howmuchroom = 1;
+                        toplaced -= 1;
+                    }
+                    else if(nb_door == 1){
+                        d[pos].howmuchroom = toplaced;
+                    }
+                    else{
+                        d[pos].howmuchroom = ((rand()%100)%toremove)+1; 
+                        toplaced -=  d[pos].howmuchroom;
+                    }                    
                 }
                 else{
-                   d[pos].howmuchroom = (rand()%100)%(toremove)+1; 
+
+                    if(nb_door > 1){
+                        d[pos].howmuchroom = 1;
+                        toplaced -= 1;
+                    }
+                    else{
+                        d[pos].howmuchroom = toplaced;
+                    }
+
                 }
+
+
+
+
                 
                 if(pos == 1 || pos == 3){
                     d[pos].pos = ((rand()%100)%(width-1))+1;
@@ -267,6 +293,7 @@ Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length,
         }
     }
     else{
+        int toremove = tot_door/(nb_door+1);
         d[pressed].wall = 1;
         d[pressed].howmuchroom = 1;
         if(pressed == 1 || pressed == 3){
@@ -278,7 +305,7 @@ Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length,
         d[pressed].remote = previous_room;
 
         for(int i = 0; i<3; i++){
-            if(nb_door > 0  && *count < realtot_door){
+            if(nb_door > 0  &&  tot_door > 0 && *count < realtot_door){ 
                 pos = (rand()%100)%4;
 
                 while(d[pos].wall == 1){
@@ -288,7 +315,33 @@ Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length,
                 d[pos].wall = 1;
                 *count += 1;
                 d[pos].remote = *count;
-                d[pos].howmuchroom = (rand()%100)%(toremove)+1;
+
+                if(toremove > 1){
+                    if(nb_door == toplaced){
+                        d[pos].howmuchroom = 1;
+                        toplaced -= 1;
+                    }
+                    else if(nb_door == 1){
+                        d[pos].howmuchroom = toplaced;
+                    }
+                    else{
+                        d[pos].howmuchroom = ((rand()%100)%toremove)+1; 
+                        toplaced -=  d[pos].howmuchroom;
+                    }                    
+                }
+                else{
+
+                    if(nb_door > 1){
+                        d[pos].howmuchroom = 1;
+                        toplaced -= 1;
+                    }
+                    else{
+                        d[pos].howmuchroom = toplaced;
+                    }
+
+                }
+                
+                
                 if(pos == 1 || pos == 3){
                     d[pos].pos = ((rand()%100)%(width-1))+1;
                 }
@@ -316,8 +369,7 @@ Room createRoom(int realtot_door, int pressed, int nb_door, int tot_door, int nb
 
     Room law;
 
-    int toremove = tot_door/nb_door;
-    int res = tot_door%nb_door;
+
 
     law.nb = nb_room;
 
@@ -327,7 +379,7 @@ Room createRoom(int realtot_door, int pressed, int nb_door, int tot_door, int nb
 
 
 
-    law.nbdoor = placeNbDoor(realtot_door ,pressed, previous_room, law.length, law.width, toremove, res, tot_door,nb_door, count);
+    law.nbdoor = placeNbDoor(realtot_door ,pressed, previous_room, law.length, law.width, tot_door, nb_door, count);
 
     
 
@@ -508,6 +560,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         mvwprintw(stdscr, 21,  winwidth+winposx+2, "remote : %d", (room+place)->nbdoor[3].remote);
         
         mvwprintw(stdscr, 23,  winwidth+winposx+2, "tot room : %d", tot_room);
+        mvwprintw(stdscr, 24,  winwidth+winposx+2, "tot door : %d", tot_door);
+        mvwprintw(stdscr, 25,  winwidth+winposx+2, "nb door : %d", nb_door);
 
         
 
@@ -532,7 +586,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             place_before = room[place].nb;
             place = room[place].nbdoor[0].remote;
             if(room[place].nbdoor == NULL ){
-                tot_door = room[place_before].nbdoor[0].howmuchroom;
+                tot_door = (room[place_before].nbdoor[0].howmuchroom)-1;
                 if(tot_door >= 3){
                     nb_door = ((rand()%100)%3)+1;
                 }
@@ -554,7 +608,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             place_before = room[place].nb;
             place = room[place].nbdoor[2].remote;
             if(room[place].nbdoor == NULL ){
-                tot_door = room[place_before].nbdoor[2].howmuchroom;
+                tot_door = (room[place_before].nbdoor[2].howmuchroom)-1;
                 if(tot_door >= 3){
                     nb_door = ((rand()%100)%3)+1;
                 }
@@ -574,7 +628,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             place_before = room[place].nb;
             place = room[place].nbdoor[3].remote;
             if(room[place].nbdoor == NULL ){
-                tot_door = room[place_before].nbdoor[3].howmuchroom;
+                tot_door = (room[place_before].nbdoor[3].howmuchroom)-1;
                 if(tot_door >= 3){
                     nb_door = ((rand()%100)%3)+1;
                 }
@@ -594,7 +648,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             place_before = room[place].nb;
             place = room[place].nbdoor[1].remote;
             if(room[place].nbdoor == NULL ){
-                tot_door = room[place_before].nbdoor[1].howmuchroom;
+                tot_door = (room[place_before].nbdoor[1].howmuchroom)-1;
                 if(tot_door >= 3){
                     nb_door = ((rand()%100)%3)+1;
                 }
