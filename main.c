@@ -237,7 +237,7 @@ Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length,
 
     if( pressed < 0){
         for(int i = 0; i<4; i++){
-            if(nb_door > 0 && *count <= realtot_door){
+            if(nb_door > 0 && *count < realtot_door){
                 pos = (rand()%100)%4;
 
                 while(d[pos].wall == 1){
@@ -278,7 +278,7 @@ Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length,
         d[pressed].remote = previous_room;
 
         for(int i = 0; i<3; i++){
-            if(nb_door > 0  && *count <= realtot_door){
+            if(nb_door > 0  && *count < realtot_door){
                 pos = (rand()%100)%4;
 
                 while(d[pos].wall == 1){
