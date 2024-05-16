@@ -478,13 +478,32 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         mvwprintw(stdscr, winposy-1, winposx+(winwidth/2)-13, "匚ㄖ丂爪丨匚  ㄚㄖ几ᗪ乇尺\n");
         mvwprintw(stdscr, winposy-1, winposx+1, "CURRENT SEED : %d", seed);
         mvwprintw(stdscr, winlength+winposy+1, winposx+1, "TIME : %d h, %d min, %d sec", tim.hours, tim.min, tim.sec);
+
+
         mvwprintw(stdscr, 0, winwidth+winposx+2, "We are on the room %d", (room+place)->nb);
         mvwprintw(stdscr, 1,  winwidth+winposx+2, "length : %d", (room+place)->length);
         mvwprintw(stdscr, 2,  winwidth+winposx+2, "width : %d", (room+place)->width);
+
+
         mvwprintw(stdscr, 3,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].howmuchroom);
         mvwprintw(stdscr, 4,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].pos);
         mvwprintw(stdscr, 5,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].wall);
         mvwprintw(stdscr, 6,  winwidth+winposx+2, "%d", (room+place)->nbdoor[0].remote);
+
+        mvwprintw(stdscr, 7,  winwidth+winposx+2, "%d", (room+place)->nbdoor[1].howmuchroom);
+        mvwprintw(stdscr, 8,  winwidth+winposx+2, "%d", (room+place)->nbdoor[1].pos);
+        mvwprintw(stdscr, 9,  winwidth+winposx+2, "%d", (room+place)->nbdoor[1].wall);
+        mvwprintw(stdscr, 10,  winwidth+winposx+2, "%d", (room+place)->nbdoor[1].remote);
+
+        mvwprintw(stdscr, 11,  winwidth+winposx+2, "%d", (room+place)->nbdoor[2].howmuchroom);
+        mvwprintw(stdscr, 12,  winwidth+winposx+2, "%d", (room+place)->nbdoor[2].pos);
+        mvwprintw(stdscr, 13,  winwidth+winposx+2, "%d", (room+place)->nbdoor[2].wall);
+        mvwprintw(stdscr, 14,  winwidth+winposx+2, "%d", (room+place)->nbdoor[2].remote);
+
+        mvwprintw(stdscr, 15,  winwidth+winposx+2, "%d", (room+place)->nbdoor[3].howmuchroom);
+        mvwprintw(stdscr, 16,  winwidth+winposx+2, "%d", (room+place)->nbdoor[3].pos);
+        mvwprintw(stdscr, 17,  winwidth+winposx+2, "%d", (room+place)->nbdoor[3].wall);
+        mvwprintw(stdscr, 18,  winwidth+winposx+2, "%d", (room+place)->nbdoor[3].remote);
 
         
 
