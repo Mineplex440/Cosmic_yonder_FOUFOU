@@ -221,7 +221,7 @@ Time createTime(int time){
 }
 
 
-void iscolide(char ** map, int map_width, int map_length, Room * actual_room, int posx, int posy, int pressed){
+void iscolide(char ** map, int map_width, int map_length, Room * actual_room,int posx, int posy, int pressed){
 
     /*
     int isTruey = 0;
@@ -434,12 +434,15 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room, in
                     if(actual_room->nbdoor[2].pos > j && actual_room->nbdoor[2].pos > 1 && actual_room->nbdoor[2].pos <= actual_room->length){
                         actual_room->nbdoor[2].pos--;
                     }
+                    else if(actual_room->nbdoor[2].pos < j && actual_room->nbdoor[2].pos > 1 && actual_room->nbdoor[2].pos <= actual_room->length){
+                        actual_room->nbdoor[2].pos++;
+                    }
 
                 }
             }
         }
         if(first > 0){
-            if(actual_room->length > 4){
+            if(actual_room->length > 8){
                 if(actual_room->nbdoor[1].pos > 1){
                     actual_room->nbdoor[1].pos--;
                 }
@@ -473,16 +476,19 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room, in
         first = 0;
         for(int i = 0; i<actual_room->width+2; i++){
             for(int j = 0; j<actual_room->length+2; j++){
-                if(map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 2 ] == '_' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 2 ] == '|' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 2 ] == 'p'){
+                if(map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+ posx + j + 2 ] == '_' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 2 ] == '|' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 2 ] == 'p'){
                     first++;
                     if(actual_room->nbdoor[3].pos > i && actual_room->nbdoor[3].pos > 1 && actual_room->nbdoor[3].pos <= actual_room->width){
                         actual_room->nbdoor[3].pos--;
+                    }
+                    else if(actual_room->nbdoor[3].pos < i && actual_room->nbdoor[3].pos > 1 && actual_room->nbdoor[3].pos <= actual_room->width){
+                        actual_room->nbdoor[3].pos++;
                     }
                 }
             }
         }
         if (first > 0){
-            if(actual_room->length > 4){
+            if(actual_room->length > 8){
                 if(actual_room->nbdoor[1].pos > 1){
                     actual_room->nbdoor[1].pos--;
                 }
@@ -522,11 +528,14 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room, in
                         if(actual_room->nbdoor[0].pos > j && actual_room->nbdoor[0].pos > 1 && actual_room->nbdoor[0].pos <= actual_room->length){
                             actual_room->nbdoor[0].pos--;
                         }
+                        else if(actual_room->nbdoor[0].pos < j && actual_room->nbdoor[0].pos > 1 && actual_room->nbdoor[0].pos <= actual_room->length){
+                            actual_room->nbdoor[0].pos++;
+                        }
                     }
                 }
             }
             if(first > 0){
-                if(actual_room->length > 2){
+                if(actual_room->length > 8){
                     if(actual_room->nbdoor[1].pos > 1){
                         actual_room->nbdoor[1].pos--;
                     }
@@ -538,7 +547,7 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room, in
                 else{
                     actual_room->length = 0;
                 }
-                if(actual_room->width > 2){
+                if(actual_room->width > 4){
                     if(actual_room->nbdoor[2].pos > 1){
                         actual_room->nbdoor[2].pos--;
                     }
@@ -564,6 +573,9 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room, in
                     if(actual_room->nbdoor[1].pos > i && actual_room->nbdoor[1].pos > 1 && actual_room->nbdoor[1].pos <= actual_room->length){
                             actual_room->nbdoor[1].pos--;
                     }
+                    else if(actual_room->nbdoor[1].pos < i && actual_room->nbdoor[1].pos > 1 && actual_room->nbdoor[1].pos <= actual_room->length){
+                            actual_room->nbdoor[1].pos++;
+                    }
                     first++;
                 }
             }
@@ -571,7 +583,7 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room, in
         if(first > 0){
 
 
-            if(actual_room->length > 2){
+            if(actual_room->length > 8){
                 actual_room->length --;
                 if(actual_room->nbdoor[3].pos > 1){
                     actual_room->nbdoor[3].pos--;
@@ -580,7 +592,7 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room, in
             else{
                 actual_room->length = 0;
             }
-            if(actual_room->width > 2){
+            if(actual_room->width > 4){
                 if(actual_room->nbdoor[0].pos > 1){
                         actual_room->nbdoor[0].pos--;
                 }
@@ -753,7 +765,7 @@ Room createRoom(int width_max_room, int lenght_max_room,int realtot_door, int pr
 
     law.nb = nb_room;
 
-    law.length = ((rand()%100)%lenght_max_room)+4;
+    law.length = ((rand()%100)%lenght_max_room)+8;
 
     law.width = ((rand()%100)%width_max_room)+4;
 
