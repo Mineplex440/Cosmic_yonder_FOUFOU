@@ -15,9 +15,9 @@ typedef struct{
 }Time;
 
 typedef struct{
-    int nbmove;
-    int power;
-    int accuracy;
+    //int nbmove;
+    float power;
+    float accuracy;
 }Spell;
 
 typedef struct{
@@ -47,6 +47,7 @@ typedef struct{
     int pv;
     //...
 }Mob;
+
 
 typedef struct{
     int placex;
@@ -420,29 +421,27 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room,int
     }
     */
     int first = 0;
+    int modifdoor = 0;
 
 
     if(pressed == 2){
 
         do{
         first = 0;
+        modifdoor = 0;
         for(int i = 0; i<actual_room->width+2; i++){
             for(int j = 0; j<actual_room->length+2; j++){  
-                if(map[(map_width/2)+ posy + i - 2 - 1 - actual_room->width][(map_length/2)+posx + j - actual_room->nbdoor[2].pos] == '_' ||map[(map_width/2)+ posy + i - 2 - 1 - actual_room->width][(map_length/2)+posx + j - actual_room->nbdoor[2].pos] == '|' || map[(map_width/2)+ posy + i - 2 - 1 - actual_room->width][(map_length/2)+posx + j - actual_room->nbdoor[2].pos] == 'p'){
+                if(map[(map_width/2)+ posy + i - 2 - actual_room->width][(map_length/2)+posx + j - actual_room->nbdoor[2].pos] == '_' ||map[(map_width/2)+ posy + i - 2 - actual_room->width][(map_length/2)+posx + j - actual_room->nbdoor[2].pos] == '|' || map[(map_width/2)+ posy + i - 2 - actual_room->width][(map_length/2)+posx + j - actual_room->nbdoor[2].pos] == 'p' || map[(map_width/2)+ posy + i - 2 - actual_room->width][(map_length/2)+posx + j - actual_room->nbdoor[2].pos] == 'a' || map[(map_width/2)+ posy + i - 2 - actual_room->width][(map_length/2)+posx + j - actual_room->nbdoor[2].pos] == 'b' || map[(map_width/2)+ posy + i - 2 - actual_room->width][(map_length/2)+posx + j - actual_room->nbdoor[2].pos] == 'c' || map[(map_width/2)+ posy + i - 2 - actual_room->width][(map_length/2)+posx + j - actual_room->nbdoor[2].pos] == 'd'){
 
                     first++;
-                    if(actual_room->nbdoor[2].pos > j && actual_room->nbdoor[2].pos > 1 && actual_room->nbdoor[2].pos <= actual_room->length){
-                        actual_room->nbdoor[2].pos--;
+                    if(actual_room->nbdoor[2].pos > j && actual_room->nbdoor[2].pos > 1 && actual_room->nbdoor[2].pos <= actual_room->width){
+                        modifdoor++;
                     }
-                    else if(actual_room->nbdoor[2].pos < j && actual_room->nbdoor[2].pos > 1 && actual_room->nbdoor[2].pos <= actual_room->length){
-                        actual_room->nbdoor[2].pos++;
-                    }
-
                 }
             }
         }
         if(first > 0){
-            if(actual_room->length > 8){
+            if(actual_room->length > 3){
                 if(actual_room->nbdoor[1].pos > 1){
                     actual_room->nbdoor[1].pos--;
                 }
@@ -452,16 +451,25 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room,int
                 actual_room->length --;
             }
             else{
-                actual_room->length = 0;
+                //actual_room->length = 0;
             }
-            if(actual_room->width > 4){
+            if(actual_room->width > 3){
                 if(actual_room->nbdoor[0].pos > 1){
                     actual_room->nbdoor[0].pos--;
                 }
+                
                 actual_room->width--;
             }
+            if(modifdoor > 0){
+                    if(actual_room->nbdoor[2].pos > 1 && actual_room->nbdoor[2].pos <= actual_room->length){
+                        actual_room->nbdoor[2].pos--;
+                    }
+                }
+                if(actual_room->nbdoor[2].pos > actual_room->length && actual_room->nbdoor[2].pos > 1){
+                     actual_room->nbdoor[2].pos--;
+                }
             else{
-                actual_room->width = 0;
+                //actual_room->width = 0;
             }
         }
 
@@ -474,30 +482,37 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room,int
 
         do{
         first = 0;
+        modifdoor = 0;
         for(int i = 0; i<actual_room->width+2; i++){
             for(int j = 0; j<actual_room->length+2; j++){
-                if(map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+ posx + j + 2 ] == '_' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 2 ] == '|' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 2 ] == 'p'){
+                if(map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+ posx + j + 1 ] == '_' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 1 ] == '|' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 1 ] == 'p' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 1 ] == 'a' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 1 ] == 'b' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 1 ] == 'c' || map[(map_width/2)+posy + i - actual_room->nbdoor[3].pos][(map_length/2)+posx + j + 1 ] == 'd'){
                     first++;
                     if(actual_room->nbdoor[3].pos > i && actual_room->nbdoor[3].pos > 1 && actual_room->nbdoor[3].pos <= actual_room->width){
-                        actual_room->nbdoor[3].pos--;
-                    }
-                    else if(actual_room->nbdoor[3].pos < i && actual_room->nbdoor[3].pos > 1 && actual_room->nbdoor[3].pos <= actual_room->width){
-                        actual_room->nbdoor[3].pos++;
+                        modifdoor++;
                     }
                 }
             }
         }
         if (first > 0){
-            if(actual_room->length > 8){
+            if(actual_room->length > 3){
                 if(actual_room->nbdoor[1].pos > 1){
                     actual_room->nbdoor[1].pos--;
                 }
+                
                 actual_room->length --;
             }
+            if(modifdoor > 0){
+                    if(actual_room->nbdoor[3].pos > 1 && actual_room->nbdoor[3].pos <= actual_room->width){
+                        actual_room->nbdoor[3].pos--;
+                    }
+                }
+                if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[3].pos > 1){
+                    actual_room->nbdoor[3].pos--;
+                }
             else{
-                actual_room->length = 0;
+                //actual_room->length = 0;
             }
-            if(actual_room->width > 4){
+            if(actual_room->width > 3){
                 if(actual_room->nbdoor[0].pos > 1){
                         actual_room->nbdoor[0].pos--;
                 }
@@ -507,7 +522,7 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room,int
                 actual_room->width--;
             }
             else{
-                actual_room->width = 0;
+                //actual_room->width = 0;
             }
         }
 
@@ -521,21 +536,19 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room,int
 
         do{
             first = 0;
+            modifdoor = 0;
             for(int i = 0; i<actual_room->width+2; i++){
                 for(int j = 0; j<actual_room->length+2; j++){
-                    if(map[(map_width/2)+posy + i + 2][(map_length/2)+posx + j - actual_room->nbdoor[0].pos] == '_' || map[(map_width/2)+posy + i + 2][(map_length/2)+posx + j - actual_room->nbdoor[0].pos] == '|' || map[(map_width/2)+posy + i + 2][(map_length/2)+posx + j - actual_room->nbdoor[0].pos] == 'p'){
+                    if(map[(map_width/2)+posy + i + 1][(map_length/2)+posx + j - actual_room->nbdoor[0].pos] == '_' || map[(map_width/2)+posy + i + 1][(map_length/2)+posx + j - actual_room->nbdoor[0].pos] == '|' || map[(map_width/2)+posy + i + 1][(map_length/2)+posx + j - actual_room->nbdoor[0].pos] == 'p' || map[(map_width/2)+posy + i + 1][(map_length/2)+posx + j - actual_room->nbdoor[0].pos] == 'a' || map[(map_width/2)+posy + i + 1][(map_length/2)+posx + j - actual_room->nbdoor[0].pos] == 'b' || map[(map_width/2)+posy + i + 1][(map_length/2)+posx + j - actual_room->nbdoor[0].pos] == 'c' || map[(map_width/2)+posy + i + 1][(map_length/2)+posx + j - actual_room->nbdoor[0].pos] == 'd'){
                         first++;
                         if(actual_room->nbdoor[0].pos > j && actual_room->nbdoor[0].pos > 1 && actual_room->nbdoor[0].pos <= actual_room->length){
-                            actual_room->nbdoor[0].pos--;
-                        }
-                        else if(actual_room->nbdoor[0].pos < j && actual_room->nbdoor[0].pos > 1 && actual_room->nbdoor[0].pos <= actual_room->length){
-                            actual_room->nbdoor[0].pos++;
+                            modifdoor++;
                         }
                     }
                 }
             }
             if(first > 0){
-                if(actual_room->length > 8){
+                if(actual_room->length > 3){
                     if(actual_room->nbdoor[1].pos > 1){
                         actual_room->nbdoor[1].pos--;
                     }
@@ -545,16 +558,25 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room,int
                     actual_room->length --;
                 }
                 else{
-                    actual_room->length = 0;
+                    //actual_room->length = 0;
                 }
-                if(actual_room->width > 4){
+                if(actual_room->width > 3){
                     if(actual_room->nbdoor[2].pos > 1){
                         actual_room->nbdoor[2].pos--;
                     }
+                    
                     actual_room->width--;
                 }
+                if(modifdoor > 0){
+                        if(actual_room->nbdoor[0].pos > 1 && actual_room->nbdoor[0].pos <= actual_room->length){
+                            actual_room->nbdoor[0].pos--;
+                        }
+                    }
+                    if(actual_room->nbdoor[0].pos > 1 && actual_room->nbdoor[0].pos > actual_room->length){
+                        actual_room->nbdoor[0].pos--;
+                    }
                 else{
-                    actual_room->width = 0;
+                    //actual_room->width = 0;
                 }
             }
 
@@ -567,14 +589,12 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room,int
 
         do{
         first = 0;
+        modifdoor =0;
         for(int i = 0; i<actual_room->width+2; i++){
             for(int j = 0; j<actual_room->length+2; j++){
-                if(map[(map_width/2)+posy + i - actual_room->nbdoor[1].pos][(map_length/2)+posx + j - 2 - 1 - actual_room->length] == '_' || map[(map_width/2)+posy + i - actual_room->nbdoor[1].pos][(map_length/2)+posx + j - 2 - 1 - actual_room->length] == '|' || map[(map_width/2)+posy + i - actual_room->nbdoor[1].pos][(map_length/2)+posx + j - 2 - 1 - actual_room->length] == 'p'){
+                if(map[(map_width/2)+posy + i - actual_room->nbdoor[1].pos][(map_length/2)+posx + j - 2 - actual_room->length] == '_' || map[(map_width/2)+posy + i - actual_room->nbdoor[1].pos][(map_length/2)+posx + j - 2 - actual_room->length] == '|' || map[(map_width/2)+posy + i - actual_room->nbdoor[1].pos][(map_length/2)+posx + j - 2 - actual_room->length] == 'p' || map[(map_width/2)+posy + i - actual_room->nbdoor[1].pos][(map_length/2)+posx + j - 2 - actual_room->length] == 'a' || map[(map_width/2)+posy + i - actual_room->nbdoor[1].pos][(map_length/2)+posx + j - 2 - actual_room->length] == 'b' || map[(map_width/2)+posy + i - actual_room->nbdoor[1].pos][(map_length/2)+posx + j - 2 - actual_room->length] == 'c' || map[(map_width/2)+posy + i - actual_room->nbdoor[1].pos][(map_length/2)+posx + j - 2 - actual_room->length] == 'd'){
                     if(actual_room->nbdoor[1].pos > i && actual_room->nbdoor[1].pos > 1 && actual_room->nbdoor[1].pos <= actual_room->length){
-                            actual_room->nbdoor[1].pos--;
-                    }
-                    else if(actual_room->nbdoor[1].pos < i && actual_room->nbdoor[1].pos > 1 && actual_room->nbdoor[1].pos <= actual_room->length){
-                            actual_room->nbdoor[1].pos++;
+                            modifdoor++;
                     }
                     first++;
                 }
@@ -583,26 +603,38 @@ void iscolide(char ** map, int map_width, int map_length, Room * actual_room,int
         if(first > 0){
 
 
-            if(actual_room->length > 8){
+            if(actual_room->length > 3){
                 actual_room->length --;
                 if(actual_room->nbdoor[3].pos > 1){
                     actual_room->nbdoor[3].pos--;
                 }
+                
             }
+            if(modifdoor > 0){
+                    if(actual_room->nbdoor[1].pos > 1 && actual_room->nbdoor[1].pos <= actual_room->length){
+                        actual_room->nbdoor[1].pos--;
+                    }
+                }
+                if(actual_room->nbdoor[1].pos > 1 && actual_room->nbdoor[1].pos > actual_room->length){
+                    actual_room->nbdoor[1].pos--;
+                }
             else{
-                actual_room->length = 0;
+                //actual_room->length = 0;
             }
-            if(actual_room->width > 4){
+            if(actual_room->width > 3){
+
                 if(actual_room->nbdoor[0].pos > 1){
                         actual_room->nbdoor[0].pos--;
                 }
                 if(actual_room->nbdoor[2].pos > 1){
                     actual_room->nbdoor[2].pos--;
                 }
+
+
                 actual_room->width--;
             }
             else{
-                actual_room->width = 0;
+                //actual_room->width = 0;
             }
 
 
@@ -780,7 +812,22 @@ Room createRoom(int width_max_room, int lenght_max_room,int realtot_door, int pr
 
 
 
-    law.nbevent = (rand()%2)+1;
+    law.nbevent = ((rand()%100)%2)+1;
+
+    law.event = NULL;
+
+    law.event = malloc(law.nbevent * sizeof(Event));
+
+    if(law.event == NULL){
+        printf("Error with the event alloctation");
+        exit(11);
+    }
+
+    for(int i = 0; i<law.nbevent; i++){
+        law.event[i].placex = ((rand()%100)%(law.length-2))+2;
+        law.event[i].placey = (((rand()%100)%(law.width-2))+2);
+        law.event[i].typeEvent = (rand()%100)%4;
+    }
 
 
 
@@ -830,6 +877,22 @@ Room createRoom(int width_max_room, int lenght_max_room,int realtot_door, int pr
         law.room[law.nbdoor[3].pos][0] = 'p';
     }
 
+    for(int i = 0; i<law.nbevent; i++){
+        if(law.event[i].typeEvent == 0){
+            law.room[law.event[i].placey][law.event[i].placex] = 'M';
+        }
+        if(law.event[i].typeEvent == 1){
+            law.room[law.event[i].placey][law.event[i].placex] = 'P';
+        }
+        if(law.event[i].typeEvent == 2){
+            law.room[law.event[i].placey][law.event[i].placex] = 'X';
+        }
+        if(law.event[i].typeEvent == 3){
+            law.room[law.event[i].placey][law.event[i].placex] = 'R';
+        }
+    
+    }
+
 
 
 
@@ -871,28 +934,28 @@ void placeRoom(char ** map, int map_width, int map_length, int pressed, Room act
     if(pressed == 0){
         for(int i = 0; i<actual_room.width+2; i++){
             for(int j = 0; j<actual_room.length+2; j++){  
-                map[(map_width/2)+ posy + i - 2 - 1 - actual_room.width][(map_length/2)+posx + j - actual_room.nbdoor[2].pos] = actual_room.room[i][j];
+                map[(map_width/2)+ posy + i - 2 - actual_room.width][(map_length/2)+posx + j - actual_room.nbdoor[2].pos] = actual_room.room[i][j];
             }
         }
     }
     if(pressed == 1){
         for(int i = 0; i<actual_room.width+2; i++){
             for(int j = 0; j<actual_room.length+2; j++){
-                map[(map_width/2)+posy + i - actual_room.nbdoor[3].pos][(map_length/2)+posx + j + 2 ] = actual_room.room[i][j];
+                map[(map_width/2)+posy + i - actual_room.nbdoor[3].pos][(map_length/2)+posx + j + 1 ] = actual_room.room[i][j];
             }
         }
     }
     if(pressed == 2){
         for(int i = 0; i<actual_room.width+2; i++){
             for(int j = 0; j<actual_room.length+2; j++){
-                map[(map_width/2)+posy + i + 2][(map_length/2)+posx + j - actual_room.nbdoor[0].pos] = actual_room.room[i][j];
+                map[(map_width/2)+posy + i + 1][(map_length/2)+posx + j - actual_room.nbdoor[0].pos] = actual_room.room[i][j];
             }
         }
     }
     if(pressed == 3){
         for(int i = 0; i<actual_room.width+2; i++){
             for(int j = 0; j<actual_room.length+2; j++){
-                map[(map_width/2)+posy + i - actual_room.nbdoor[1].pos][(map_length/2)+posx + j - 2 - 1 - actual_room.length] = actual_room.room[i][j];
+                map[(map_width/2)+posy + i - actual_room.nbdoor[1].pos][(map_length/2)+posx + j - 2 - actual_room.length] = actual_room.room[i][j];
             }
         }
 
@@ -900,8 +963,126 @@ void placeRoom(char ** map, int map_width, int map_length, int pressed, Room act
 }
 
 
+int doyouwantchangeroom(int winwidth, int winlength, WINDOW * win, int * stop){
+
+    int x = 0;
+
+    WINDOW * changeroom = NULL;
+
+    changeroom = subwin(win, 9, 40, (winlength/2)-2, (winwidth/2)-10);
+
+    if(changeroom == NULL){
+        printf("Error with doyouwantchangeroom");
+        exit(12);
+    }
+
+    int t = time(NULL);
+
+    int ch = 0;
+
+    while(ch != ENTER){
+
+        wclear(changeroom);
+
+        mvwprintw(changeroom, 3, 7, "Do you want to change room ?");
+
+        mvwprintw(changeroom, 6, 8, "YES");
+
+        mvwprintw(changeroom, 6, 17, "NO");
+
+        mvwprintw(changeroom, 6, 4+x, "->");
+
+        box(changeroom, 0, 0);
+
+        wrefresh(changeroom);
+
+        ch = getch();
+
+        if(ch == KEY_LEFT && x > 0){
+            x -= 10;
+        }
+        if(ch == KEY_RIGHT && x < 10){
+            x += 10;
+        }
+
+    }
+
+    wclear(changeroom);
+    
+    int te = time(NULL);
+    *stop += (te-t);
 
 
+    if(x == 0){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+
+    free(changeroom);
+}
+
+int doyouwantfight(int winwidth, int winlength, WINDOW * win, int * stop){
+
+    int x = 0;
+
+    WINDOW * fight = NULL;
+
+    fight = subwin(win, 9, 40, (winlength/2)-2, (winwidth/2)-10);
+
+    if(fight == NULL){
+        printf("Error with doyouwantfight");
+        exit(13);
+    }
+
+    int t = time(NULL);
+
+    int ch = 0;
+
+    while(ch != ENTER){
+
+        wclear(fight);
+
+        mvwprintw(fight, 3, 7, "Do you want to fight ?");
+
+        mvwprintw(fight, 6, 8, "YES");
+
+        mvwprintw(fight, 6, 17, "NO");
+
+        mvwprintw(fight, 6, 4+x, "->");
+
+        box(fight, 0, 0);
+
+        wrefresh(fight);
+
+        ch = getch();
+
+        if(ch == KEY_LEFT && x > 0){
+            x -= 10;
+        }
+        if(ch == KEY_RIGHT && x < 10){
+            x += 10;
+        }
+
+    }
+
+    wclear(fight);
+    
+    int te = time(NULL);
+    *stop += (te-t);
+
+
+    if(x == 0){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+
+    free(fight);
+
+}
 
 
 
@@ -921,6 +1102,20 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
     Player j;
 
     j.name = createName(win, winwidth, winlength);
+
+    j.playerStat.move[0].accuracy = 0.7;
+    j.playerStat.move[0].power = 10/100;
+
+    j.playerStat.move[1].accuracy = 0.8;
+    j.playerStat.move[1].power = 2;
+
+    j.playerStat.move[2].accuracy = 0.7;
+    j.playerStat.move[2].power = 2.5;
+
+    j.playerStat.move[3].accuracy = 1;
+    j.playerStat.move[1].power = -(10/100) ;
+
+
 
     int lenght_max_room =  18;
     int width_max_room = 9;
@@ -1009,6 +1204,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     int t = (time(NULL));
 
+    int stop = 0;
+
     int te = time(NULL);
 
     Time tim;
@@ -1017,7 +1214,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
 
         te = time(NULL);
-        tim = createTime(te-t);    
+        tim = createTime(te-t-stop);    
         mvwprintw(stdscr, winposy-1, winposx+(winwidth/2)-13, "匚ㄖ丂爪丨匚  ㄚㄖ几ᗪ乇尺\n");
         mvwprintw(stdscr, winposy-1, winposx+1, "CURRENT SEED : %d", seed);
         mvwprintw(stdscr, winlength+winposy+1, winposx+1, "TIME : %d h, %d min, %d sec", tim.hours, tim.min, tim.sec);
@@ -1052,6 +1249,12 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         mvwprintw(stdscr, 24,  winwidth+winposx+2, "tot door : %d", tot_door);
         mvwprintw(stdscr, 25,  winwidth+winposx+2, "nb door : %d", nb_door);
 
+        mvwprintw(stdscr, 26,  winwidth+winposx+2, "event 1 x : %d", (room+place)->event[0].placex);
+        mvwprintw(stdscr, 27,  winwidth+winposx+2, "event 1 y : %d", (room+place)->event[0].placey);
+        mvwprintw(stdscr, 28,  winwidth+winposx+2, "event 2 x : %d", (room+place)->event[1].placex);
+        mvwprintw(stdscr, 29
+        ,  winwidth+winposx+2, "event 2 y : %d", (room+place)->event[1].placey);
+
         
 
 
@@ -1072,9 +1275,12 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         
         ch = getch();
 
-        if(ch == KEY_DOWN && map[(size_map_width/2) + j.posy + 1][(size_map_length/2) + j.posx] != '_' && map[(size_map_width/2) + j.posy + 1][(size_map_length/2) + j.posx] != 'p'){
+        if(ch == KEY_DOWN && map[(size_map_width/2) + j.posy + 1][(size_map_length/2) + j.posx] != '_' && map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] != 'p'){
             j.posy++;
-            if (map[(size_map_width/2) + j.posy + 1][(size_map_length/2) + j.posx] == 'p'){
+
+
+            if (map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'p'){
+                if(doyouwantchangeroom(winwidth, winlength, win, &stop) == 1){
                 place_before = room[place].nb;
                 place = room[place].nbdoor[2].remote;
                 placementy += 1;
@@ -1185,13 +1391,55 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     room[place] = createRoom(width_max_room, lenght_max_room, tot_room,0,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length);
                     placeRoom(map, size_map_width, size_map_length, 2, room[place], j.posx, j.posy, winwidth, winlength);
                 }
-                j.posy += 3;
+                j.posy += 2;
+                }
+                else{
+                    j.posy--;
+                }
             }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posy--;
+                }
+                else{
+                    j.posy--;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'P'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posy--;
+                }
+                else{
+                    j.posy--;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'X'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posy--;
+                }
+                else{
+                    j.posy--;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'R'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posy--;
+                }
+                else{
+                    j.posy--;
+                }
+            }
+
         }
         
-        if(ch == KEY_UP && map[(size_map_width/2) + j.posy - 1][(size_map_length/2) + j.posx] != '_' && map[(size_map_width/2) + j.posy - 1][(size_map_length/2) + j.posx] != 'p'){
+        if(ch == KEY_UP && map[(size_map_width/2) + j.posy - 1][(size_map_length/2) + j.posx] != '_' && map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] != 'p'){
             j.posy--;
-            if (map[(size_map_width/2) + j.posy - 1][(size_map_length/2) + j.posx] == 'p'){
+            if (map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'p'){
+                if(doyouwantchangeroom(winwidth, winlength, win, &stop) == 1){
                 place_before = room[place].nb;
                 place = room[place].nbdoor[0].remote;
                 placementy -= 1;
@@ -1212,13 +1460,54 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     room[place] = createRoom(width_max_room, lenght_max_room, tot_room,2,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length);
                     placeRoom(map, size_map_width, size_map_length, 0, room[place], j.posx, j.posy, winwidth, winlength);
                 }
-                j.posy -= 3;
+                j.posy -= 2;
+                }
+                else{
+                    j.posy++;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posy++;
+                }
+                else{
+                    j.posy++;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'P'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posy++;
+                }
+                else{
+                    j.posy++;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'X'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posy++;
+                }
+                else{
+                    j.posy++;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'R'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posy++;
+                }
+                else{
+                    j.posy++;
+                }
             }
         }
 
-        if(ch == KEY_LEFT && map[(size_map_width/2) + j.posy ][(size_map_length/2) + j.posx - 1] != '|' && map[(size_map_width/2) + j.posy ][(size_map_length/2) + j.posx - 1] != 'p'){
+        if(ch == KEY_LEFT && map[(size_map_width/2) + j.posy ][(size_map_length/2) + j.posx - 1] != '|' && map[(size_map_width/2) + j.posy ][(size_map_length/2) + j.posx] != 'p'){
             j.posx--;
-            if (map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx -1] == 'p'){
+            if (map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'p'){
+                if(doyouwantchangeroom(winwidth, winlength, win, &stop) == 1){
                 place_before = room[place].nb;
                 place = room[place].nbdoor[3].remote;
                 placementx -= 1;
@@ -1239,12 +1528,53 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     room[place] = createRoom(width_max_room, lenght_max_room, tot_room,1,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length);
                     placeRoom(map, size_map_width, size_map_length, 3, room[place], j.posx, j.posy, winwidth, winlength);
                 }
-                j.posx -= 3;
+                j.posx -= 2;
+                }
+                else{
+                    j.posx++;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posx++;
+                }
+                else{
+                    j.posx++;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'P'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posx++;
+                }
+                else{
+                    j.posx++;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'X'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posx++;
+                }
+                else{
+                    j.posx++;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'R'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posx++;
+                }
+                else{
+                    j.posx++;
+                }
             }
         }
-        if(ch == KEY_RIGHT && map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx + 1] != '|' && map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx + 1] != 'p'){
+        if(ch == KEY_RIGHT && map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx + 1] != '|' && map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] != 'p'){
             j.posx++;
-            if (map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx + 1] == 'p'){
+            if (map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'p'){
+                if(doyouwantchangeroom(winwidth, winlength, win, &stop) == 1){
                 place_before = room[place].nb;
                 place = room[place].nbdoor[1].remote;
                 placementx += 1;
@@ -1265,8 +1595,50 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     room[place] = createRoom(width_max_room, lenght_max_room, tot_room, 3, nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length);
                     placeRoom(map, size_map_width, size_map_length, 1, room[place], j.posx, j.posy, winwidth, winlength);
                 }
-                j.posx += 3;
+                j.posx += 2;
+                }
+                else{
+                    j.posx--;
+                }
                 
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posx--;
+                }
+                else{
+                    j.posx--;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'P'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posx--;
+                }
+                else{
+                    j.posx--;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'X'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    j.posx--;
+                }
+                else{
+                    j.posx--;
+                }
+            }
+
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'R'){
+                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+
+
+                    j.posx--;
+                }
+                else{
+                    j.posx--;
+                }
             }
         }
 
@@ -1572,7 +1944,7 @@ int main(){
     showMenu(win, winlength, winwidth, winposx, winposy);
 
 
-    
+
     endwin();
 
     return 0;
