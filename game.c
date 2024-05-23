@@ -1224,8 +1224,6 @@ void printItem(int winwidth, int winlength, WINDOW * win, int * stop, Item i){
     int te = time(NULL);
     *stop += (te-t);
 
-    free(item);
-
 }
 
 
