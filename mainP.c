@@ -85,21 +85,13 @@ typedef struct{
 
 Player initPlayer(){ //
 	Player p;
-<<<<<<< HEAD
-	p.playerStat.tot_pv = 5;
+	p.playerStat.tot_pv = 80;
     p.playerStat.pv = p.playerStat.tot_pv;
-=======
-	p.playerStat.pv = 80;
->>>>>>> refs/remotes/origin/main
 	p.playerStat.atck = 5;
 	p.playerStat.def = 4;
 	p.playerStat.level = 0;
 	p.playerStat.dodge = 8;
-<<<<<<< HEAD
-	p.playerStat.exp = 500;
-=======
 	p.playerStat.exp = 0;
->>>>>>> refs/remotes/origin/main
 	p.playerStat.speed = 2; // Initialization of the player stat
 	p.live = 1;
 
@@ -134,11 +126,8 @@ Player player_lvl_up(Player p){
 	while(p.playerStat.level < lvl ){
 	
 		p.playerStat.level++;
-		p.playerStat.pv += 10;
-<<<<<<< HEAD
+		p.playerStat.tot_pv += 10;
         p.playerStat.pv = p.playerStat.tot_pv;
-=======
->>>>>>> refs/remotes/origin/main
 		p.playerStat.atck += 4;
 		p.playerStat.def += 2;
 		if((p.playerStat.level)%3 == 0){
@@ -1383,28 +1372,18 @@ Player fight(Mob mob, Player player,WINDOW * win, int winlength, int winwidth){
 	The function takes 5 arguments : the mob and the player, with the window and his length and witdth*/
 
 	
-<<<<<<< HEAD
     int posy = (winlength/2)+4; // Arrow coordonate
-=======
-    	int posy = (winlength/2)+4; // Arrow coordonate
->>>>>>> refs/remotes/origin/main
 
 	int ex = 0; // exit condition for the while loop
 	
 	int chr = 0; // input
-<<<<<<< HEAD
+
 
     int pvtot = player.playerStat.pv; // Initialized to assure the correct total amount of player vital point
 	
 	int reward = 11; // for each attack turn we had +1 exp to the random pick of exp earned at the end of the fight
 	
-=======
-	
-	int reward = 11; // for each attack turn we had +1 exp to the random pick of exp earned at the end of the fight
-	
-	int pvtot = player.playerStat.pv; // Initialized to assure the correct total amount of player vital point
-	
->>>>>>> refs/remotes/origin/main
+
 	int pvmob = mob.pv; // Initialized to assure the correct total amount of the mob vital point
 	
 	int def=0; // Def will be a random int taken between 0 and the stat of defense to prevent from damage on pv
@@ -1458,11 +1437,6 @@ Player fight(Mob mob, Player player,WINDOW * win, int winlength, int winwidth){
 	
 	
 		wclear(win_fight);
-		
-<<<<<<< HEAD
-=======
-		usleep(20000);
->>>>>>> refs/remotes/origin/main
 	
 		box(win_fight, 0,0);	
 		box(win_a, 0, 0);
@@ -1487,11 +1461,7 @@ Player fight(Mob mob, Player player,WINDOW * win, int winlength, int winwidth){
 		}
 		if(chr == ENTER && posy == (win_fl/2)+4 ){ // attack option
 		
-<<<<<<< HEAD
 			if(player.playerStat.speed>mob.speed){ // Player attack first if he has more speed
-=======
-			if(player.playerStat.speed>mob.speed){ // Player attack first if he get more speed
->>>>>>> refs/remotes/origin/main
 			
 				mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Your turn !");
 				wrefresh(win_fight);
@@ -1513,12 +1483,6 @@ Player fight(Mob mob, Player player,WINDOW * win, int winlength, int winwidth){
 				
 				
 				wclear(win_fight);
-<<<<<<< HEAD
-
-=======
-		
-				usleep(20000);
->>>>>>> refs/remotes/origin/main
 			
 				box(win_fight, 0,0);	
 				box(win_a, 0, 0);
@@ -1577,11 +1541,6 @@ Player fight(Mob mob, Player player,WINDOW * win, int winlength, int winwidth){
 				
 				
 				wclear(win_fight);
-<<<<<<< HEAD
-=======
-		
-				usleep(20000);
->>>>>>> refs/remotes/origin/main
 			
 				box(win_fight, 0,0);	
 				box(win_a, 0, 0);
@@ -1618,15 +1577,12 @@ Player fight(Mob mob, Player player,WINDOW * win, int winlength, int winwidth){
 				
 			}
 			reward++;//Adding the survival bonus
-<<<<<<< HEAD
             
             chr = getch(); //avoid the enter excess
 
             while(chr != ERR){
                 chr = getch();
             }
-=======
->>>>>>> refs/remotes/origin/main
 		}
 		if(chr == ENTER && posy == (win_fl/2)+7 ){ // Escape option
 			
@@ -1658,30 +1614,24 @@ Player fight(Mob mob, Player player,WINDOW * win, int winlength, int winwidth){
 			
 		
 			}
-<<<<<<< HEAD
 
             chr = getch();
 
             while(chr != ERR){
                 chr = getch();
             }
-=======
->>>>>>> refs/remotes/origin/main
 		}
 		
 		if(chr == ENTER && posy == (win_fl/2)+10 ){ // Bag option
 			mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "No bag yet !");
 			wrefresh(win_fight);
 			usleep(70000);
-<<<<<<< HEAD
 
             chr = getch();
 
             while(chr != ERR){
                 chr = getch();
             }
-=======
->>>>>>> refs/remotes/origin/main
 		}
 		
 		
@@ -1708,11 +1658,7 @@ Player fight(Mob mob, Player player,WINDOW * win, int winlength, int winwidth){
 		}
 		
 		
-<<<<<<< HEAD
 		//chr = 0; // Reset to 0 to prevent the menu from entering an option because the enter input is kept
-=======
-		chr = 0; // Reset to 0 to prevent the menu from entering an option because the enter input is kept
->>>>>>> refs/remotes/origin/main
 		
 		
 		
@@ -1740,11 +1686,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
     srand(seed);
 
     Player j;
-<<<<<<< HEAD
-    Mob m;
 
-=======
->>>>>>> refs/remotes/origin/main
+    Mob m;
+    
     j = initPlayer();
 
     for(int i = 0; i<10; i++){
@@ -2280,7 +2224,6 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         if(ch == 27){//pause menu
             exit(12);
         }
-<<<<<<< HEAD
 
         
 
@@ -2295,8 +2238,6 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             j = player_lvl_up(j);
 
         }
-=======
->>>>>>> refs/remotes/origin/main
      
 
 
