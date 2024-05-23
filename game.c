@@ -85,14 +85,13 @@ typedef struct{
 
 Player initPlayer(){ //
 	Player p;
-	p.playerStat.tot_pv = 5;
+	p.playerStat.tot_pv = 50;
         p.playerStat.pv = p.playerStat.tot_pv;
-	p.playerStat.pv = 80;
 	p.playerStat.atck = 5;
-	p.playerStat.def = 4;
+	p.playerStat.def = 3;
 	p.playerStat.level = 0;
 	p.playerStat.dodge = 8;
-	p.playerStat.exp = 500;
+	p.playerStat.exp = 0;
 	p.playerStat.speed = 2; // Initialization of the player stat
 	p.live = 1;
 
@@ -102,15 +101,15 @@ Player initPlayer(){ //
 Mob initMob(Player p){ //The mob is generated with the player level 
 	Mob m;
 	int lvl = p.playerStat.level;
-	m.pv = 40;
-	m.atck = rand()%3+4;
+	m.pv = 35;
+	m.atck = rand()%3+3;
 	m.def = rand()%2+1;
 	m.dodge = 8;
 	m.speed = rand()%4+1;
 
 	for(int i=1;i<=lvl;i++){ // Loop who calibrate the mob to the player lvl
-		m.pv += 15;
-		m.atck += rand()%3+1;
+		m.pv += 12;
+		m.atck += rand()%3+2;
 		m.def += rand()%3;
 		if((p.playerStat.level)%3 == 0){
 		     m.dodge --;
@@ -119,6 +118,7 @@ Mob initMob(Player p){ //The mob is generated with the player level
 	}
 	return m;
 }
+
 
 
 Item initItem(){ //Generation of the item
@@ -154,6 +154,8 @@ Item initItem(){ //Generation of the item
     }
 	return i;
 }
+
+
 
 
 Player player_lvl_up(Player p){
@@ -981,7 +983,7 @@ int createRoom(Room * law, int width_max_room, int lenght_max_room,int realtot_d
 
 
 
-    law->nbevent = ((rand()%100)%2)+1;
+    law->nbevent = ((rand()%100)%2)+1; // Number max of event per room
 
     law->event = NULL;
 
@@ -1001,7 +1003,7 @@ int createRoom(Room * law, int width_max_room, int lenght_max_room,int realtot_d
                 law->event[i].placey = (((rand()%100)%(law->width-2))+2);
             }
         }
-        law->event[i].typeEvent = (rand()%100)%2;
+        law->event[i].typeEvent = (rand()%100)%3; // Random pick of the type of event
     }
 
 
@@ -1058,6 +1060,9 @@ int createRoom(Room * law, int width_max_room, int lenght_max_room,int realtot_d
         }
         if(law->event[i].typeEvent == 1){
             law->room[law->event[i].placey][law->event[i].placex] = 'I';
+        }
+        if(law->event[i].typeEvent == 2){
+            law->room[law->event[i].placey][law->event[i].placex] = 'T';
         }
     }
 
@@ -1188,7 +1193,7 @@ int doyouwantchangeroom(int winwidth, int winlength, WINDOW * win, int * stop){
     free(changeroom);
 }
 
-int doyouwantfight(int winwidth, int winlength, WINDOW * win, int * stop){
+int doyouwantfight(int winwidth, int winlength, WINDOW * win, int * stop, int type_event){
 
     int x = 0;
 
@@ -1209,7 +1214,22 @@ int doyouwantfight(int winwidth, int winlength, WINDOW * win, int * stop){
 
         wclear(fight);
 
-        mvwprintw(fight, 3, 7, "Do you want to fight ?");
+       switch(type_event){
+
+            case 0: //if event is a fight
+		mvwprintw(fight, 3, 7, "Do you want to fight ?");
+		break;
+			
+            case 1: //if event is an item to pick up
+		mvwprintw(fight, 3, 8, "Pick up the item ?");
+		break;
+			
+	    case 2: // if event is a task
+		mvwprintw(fight, 3, 4, "Do you want to complete the task ?");
+		break; 
+	
+	}
+
 
         mvwprintw(fight, 6, 8, "YES");
 
@@ -1413,7 +1433,6 @@ Player fight(Mob mob, Player player,WINDOW * win, int winlength, int winwidth, I
 	
 
         int posy = (winlength/2)+4; // Arrow coordonate
-
 
 	int ex = 0; // exit condition for the while loop
 	
@@ -2053,10 +2072,10 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                 }
             }
 
-            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
-                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){ // Mob collide
+                if(doyouwantfight(winwidth, winlength, win, &stop, 0) == 1){
                     m = initMob(j);
-                    j = fight(m, j, win, winlength, winwidth,j.inventory, &stop, &equipedsword, &equipedshild);
+                    j = fight(m, j, win, winlength, winwidth, j.inventory, &stop, &equipedsword, &equipedshild);
                     j.posy--;
                 }
                 else{
@@ -2064,8 +2083,16 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                 }
             }
 
-            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'I'){
-                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'I'){ // Item collide
+                if(doyouwantfight(winwidth, winlength, win, &stop, 1) == 1){
+                    j.posy--;
+                }
+                else{
+                    j.posy--;
+                }
+            }
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){ // Task collide
+                if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
                     j.posy--;
                 }
                 else{
@@ -2118,9 +2145,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             }
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
-                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                if(doyouwantfight(winwidth, winlength, win, &stop, 0) == 1){
                     m = initMob(j);
-                    j = fight(m, j, win, winlength, winwidth,j.inventory,  &stop, &equipedsword, &equipedshild);
+                    j = fight(m, j, win, winlength, winwidth, j.inventory, &stop, &equipedsword, &equipedshild);
                     j.posy++;
                 }
                 else{
@@ -2129,7 +2156,15 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             }
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'I'){
-                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                if(doyouwantfight(winwidth, winlength, win, &stop, 1) == 1){
+                    j.posy++;
+                }
+                else{
+                    j.posy++;
+                }
+            }
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
+                if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
                     j.posy++;
                 }
                 else{
@@ -2179,9 +2214,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             }
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
-                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                if(doyouwantfight(winwidth, winlength, win, &stop, 0) == 1){
                     m = initMob(j);
-                    j = fight(m, j, win, winlength, winwidth,j.inventory,  &stop, &equipedsword, &equipedshild);
+                    j = fight(m, j, win, winlength, winwidth, j.inventory, &stop, &equipedsword, &equipedshild);
                     j.posx++;
                 }
                 else{
@@ -2190,7 +2225,15 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             }
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'I'){
-                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                if(doyouwantfight(winwidth, winlength, win, &stop, 1) == 1){
+                    j.posx++;
+                }
+                else{
+                    j.posx++;
+                }
+            }
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
+                if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
                     j.posx++;
                 }
                 else{
@@ -2243,9 +2286,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
-                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                if(doyouwantfight(winwidth, winlength, win, &stop, 0) == 1){
                     m = initMob(j);
-                    j = fight(m, j, win, winlength, winwidth,j.inventory,  &stop, &equipedsword, &equipedshild);
+                    j = fight(m, j, win, winlength, winwidth, j.inventory, &stop, &equipedsword, &equipedshild);
                     j.posx--;
                 }
                 else{
@@ -2254,7 +2297,15 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             }
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'I'){
-                if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                if(doyouwantfight(winwidth, winlength, win, &stop, 1) == 1){
+                    j.posx--;
+                }
+                else{
+                    j.posx--;
+                }
+            }
+            if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
+                if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
                     j.posx--;
                 }
                 else{
