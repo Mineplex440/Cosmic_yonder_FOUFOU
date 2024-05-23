@@ -120,6 +120,42 @@ Mob initMob(Player p){ //The mob is generated with the player level
 	return m;
 }
 
+
+Item initItem(Item i){ //Generation of the item
+	
+    int decider = rand()%11;
+    if (decider == 0){
+        i.name = 'LightSaber';
+        i.type = 3;
+        i.buff = 35;
+    }
+    else if((decider >= 1) && (decider <=3)){
+        i.name = 'Sword';
+        i.type = 0;
+        i.buff = 10;
+    }
+    else if((decider >= 4) && (decider <=6)){
+        i.name = 'Shield';
+        i.type = 1;
+        i.buff = 15;
+    }
+    else{
+        i.name = 'Potion';
+        i.type = 2;
+        decider = rand()%4;
+        if(decider == 0){
+            i.typebuff = 1;
+            i.buff = 2;
+        }
+        else{
+            i.typebuff = 2;
+            i.buff = 40;
+        }
+    }
+	return i;
+}
+
+
 Player player_lvl_up(Player p){
 
 	int lvl = p.playerStat.exp/100;
