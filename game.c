@@ -121,7 +121,7 @@ Mob initMob(Player p){ //The mob is generated with the player level
 }
 
 
-Item initItem(Item i){ //Generation of the item
+Item initItem(){ //Generation of the item
 	
     int decider = rand()%11;
     if (decider == 0){
