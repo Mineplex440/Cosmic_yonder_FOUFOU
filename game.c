@@ -1193,6 +1193,43 @@ int doyouwantchangeroom(int winwidth, int winlength, WINDOW * win, int * stop){
     free(changeroom);
 }
 
+void printItem(int winwidth, int winlength, WINDOW * win, int * stop, Item i){
+
+    int x = 0;
+
+    WINDOW * item = NULL;
+
+    item = subwin(win, 9, 40, (winlength/2)-2, (winwidth/2)-10);
+
+    if(item == NULL){
+        printf("Error with printItem");
+        exit(13);
+    }
+
+    int t = time(NULL);
+
+
+    wclear(item);
+
+    mvwprintw(item, 3, 7, "You dropped a %s.", i.name);
+
+    box(item, 0, 0);
+
+    wrefresh(item);
+
+    sleep(1);
+
+    wclear(item);
+    
+    int te = time(NULL);
+    *stop += (te-t);
+
+    free(item);
+
+}
+
+
+
 int doyouwantfight(int winwidth, int winlength, WINDOW * win, int * stop, int type_event){
 
     int x = 0;
@@ -2085,6 +2122,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'I'){ // Item collide
                 if(doyouwantfight(winwidth, winlength, win, &stop, 1) == 1){
+			Item i;
+                    i=initItem();
+                    printItem(winwidth, winlength, win, &stop, i);
                     j.posy--;
                 }
                 else{
@@ -2157,6 +2197,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'I'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 1) == 1){
+			Item i;
+                    i=initItem();
+                    printItem(winwidth, winlength, win, &stop, i);
                     j.posy++;
                 }
                 else{
@@ -2226,6 +2269,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'I'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 1) == 1){
+			Item i;
+                    i=initItem();
+                    printItem(winwidth, winlength, win, &stop, i);
                     j.posx++;
                 }
                 else{
@@ -2298,6 +2344,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'I'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 1) == 1){
+			Item i;
+                    i=initItem();
+                    printItem(winwidth, winlength, win, &stop, i);
                     j.posx--;
                 }
                 else{
