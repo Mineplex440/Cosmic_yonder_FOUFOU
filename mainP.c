@@ -22,8 +22,13 @@ typedef struct{
 
 typedef struct{
     int pv;
+    int tot_pv;
     int exp;
     int level;
+    int atck; // Player attack
+    int def; // Player defense
+    int dodge; // Player dodge stat
+    int speed; // Player speed
     int strenth;
     Spell move[NB_MOVE];
 }Stat;
@@ -41,6 +46,7 @@ typedef struct{
     char * name;
     Stat playerStat;
     Item inventory[10];
+    int live;
 }Player;
 
 typedef struct{
@@ -52,6 +58,10 @@ typedef struct{
 
 typedef struct{
     int pv;
+    int atck;
+    int dodge;
+    int speed;
+    int def;
     //...
 }Mob;
 
@@ -71,6 +81,65 @@ typedef struct{
     Door * nbdoor;
     char ** room;
 }Room;
+
+
+Player initPlayer(){ //
+	Player p;
+	p.playerStat.tot_pv = 5;
+    p.playerStat.pv = p.playerStat.tot_pv;
+	p.playerStat.atck = 5;
+	p.playerStat.def = 4;
+	p.playerStat.level = 0;
+	p.playerStat.dodge = 8;
+	p.playerStat.exp = 500;
+	p.playerStat.speed = 2; // Initialization of the player stat
+	p.live = 1;
+
+	return p;
+}
+
+Mob initMob(Player p){ //The mob is generated with the player level 
+	Mob m;
+	int lvl = p.playerStat.level;
+	m.pv = 40;
+	m.atck = rand()%3+4;
+	m.def = rand()%2+1;
+	m.dodge = 8;
+	m.speed = rand()%4+1;
+
+	for(int i=1;i<=lvl;i++){ // Loop who calibrate the mob to the player lvl
+		m.pv += 15;
+		m.atck += rand()%3+1;
+		m.def += rand()%3;
+		if((p.playerStat.level)%3 == 0){
+		     m.dodge --;
+		     m.speed ++;
+		}
+	}
+	return m;
+}
+
+Player player_lvl_up(Player p){
+
+	int lvl = p.playerStat.exp/100;
+
+	while(p.playerStat.level < lvl ){
+	
+		p.playerStat.level++;
+		p.playerStat.pv += 10;
+        p.playerStat.pv = p.playerStat.tot_pv;
+		p.playerStat.atck += 4;
+		p.playerStat.def += 2;
+		if((p.playerStat.level)%3 == 0){
+		     p.playerStat.dodge --;
+		     p.playerStat.speed ++;
+		}
+				
+	}
+	
+	return p;
+
+}
 
 
 
@@ -1298,6 +1367,310 @@ void openinventory(int winwidth, int winlength, WINDOW * win, Item * inventory, 
 }
 
 
+Player fight(Mob mob, Player player,WINDOW * win, int winlength, int winwidth){
+	/*Function that will manage the fight between a mob and the player.*
+	The function takes 5 arguments : the mob and the player, with the window and his length and witdth*/
+
+	
+    int posy = (winlength/2)+4; // Arrow coordonate
+
+	int ex = 0; // exit condition for the while loop
+	
+	int chr = 0; // input
+
+    int pvtot = player.playerStat.pv; // Initialized to assure the correct total amount of player vital point
+	
+	int reward = 11; // for each attack turn we had +1 exp to the random pick of exp earned at the end of the fight
+	
+	int pvmob = mob.pv; // Initialized to assure the correct total amount of the mob vital point
+	
+	int def=0; // Def will be a random int taken between 0 and the stat of defense to prevent from damage on pv
+	
+	int def_value;
+	
+	WINDOW * win_a = NULL; // Declaration of the action box
+	
+	int winx = 25; // x position of the action box
+	int winy = (winlength/2)+4; // y position of the action box
+	int winl = 11; // Length of the action box
+	int wind = 15; // Width of the action box
+	
+	win_a = subwin(stdscr,winl, wind, winy, winx); //Window defined for the action box
+	
+	
+	WINDOW * win_s = NULL; // Declaration of the information box
+	
+	int win_sx = (winwidth/2)-(winwidth/4); // x position of the information box
+	int win_sy = 5; // y position of the information box
+	int win_sl = 4; // Length of the information box
+	int win_sd = 15; // Width of the information box
+	int pvj = player.playerStat.pv;
+	
+	win_s = subwin(stdscr,win_sl, win_sd, win_sy, win_sx); // Window defined for the player information
+	
+	
+	WINDOW * win_fight = NULL; // Declaration of the fight box
+	
+	int win_fx = (winwidth/2)-(winwidth/4); // x position of the fight box
+	int win_fy = (winlength/2)-(winlength/4)-3; // y position of the fight box
+	int win_fl = 25; // Length of the fight box
+	int win_fw = 60; // Width of the fight box
+	
+	win_fight = subwin(stdscr,win_fl, win_fw, win_fy, win_fx); // Window defined for the fight display
+	
+	
+	wclear(win_fight); // Clear of the area where the fight box will be printed
+	
+	box(win_fight, 0,0);	
+	
+	mvwprintw(win, (winlength/2)-5, (winwidth/2)-15, "A monster stands before you !"); // Begining of the fight
+	
+	wrefresh(win_fight);
+	
+	sleep(2);
+	
+	wclear(win_fight);
+	
+	while(ex != 1){ // fight loop
+	
+	
+		wclear(win_fight);
+		
+	
+		box(win_fight, 0,0);	
+		box(win_a, 0, 0);
+		box(win_s, 0, 0);
+		mvwprintw(win_fight, 2, 2,"lvl %d", player.playerStat.level );
+		mvwprintw(win_fight, 1, 2, "PV %d/%d", player.playerStat.pv, pvtot );
+		mvwprintw(win_fight, 1, (win_fw)-14, "Mob pv %d/%d", mob.pv, pvmob );
+		mvwprintw(win_fight, (win_fl/2)+4, (win_fw/6)-3, "attack");
+		mvwprintw(win_fight, (win_fl/2)+7, (win_fw/6)-3, "escape");
+		mvwprintw(win_fight, (win_fl/2)+10, (win_fw/6)-3, "bag");
+		mvwprintw(win_fight, posy, (win_fw /6)-7 , "-->"); // Display setup
+		
+		
+		
+		chr = getch(); // Player input 
+		
+		if(chr == KEY_UP && posy != (win_fl/2)+4){
+			posy -= 3;
+		}
+		if(chr == KEY_DOWN && posy != (win_fl/2)+10){ // Arrow move
+			posy += 3;
+		}
+		if(chr == ENTER && posy == (win_fl/2)+4 ){ // attack option
+		
+			if(player.playerStat.speed>mob.speed){ // Player attack first if he has more speed
+			
+				mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Your turn !");
+				wrefresh(win_fight);
+				sleep(1);
+				if(((rand()%10)+1)%mob.dodge==0 ){ // Chance of miss the attack
+				
+					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "The monster dodge the attack !"); 
+					wrefresh(win_fight);
+					sleep(2);
+				}
+				else{
+					def_value = mob.def;
+					def = rand()%def_value;
+					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "You attack and inflict him %d damage !", player.playerStat.atck-def);//display of the fight information
+					mob.pv -= player.playerStat.atck-def;
+					wrefresh(win_fight);
+					sleep(2);		
+				}
+				
+				
+				wclear(win_fight);
+
+			
+				box(win_fight, 0,0);	
+				box(win_a, 0, 0);
+				box(win_s, 0, 0);
+				mvwprintw(win_fight, 2, 2,"lvl %d", player.playerStat.level );
+				mvwprintw(win_fight, 1, (win_fw)-14, "Mob pv %d/%d", mob.pv, pvmob );
+				mvwprintw(win_fight, 1, 2, "PV %d/%d", player.playerStat.pv, pvtot );
+				mvwprintw(win_fight, (win_fl/2)+4, (win_fw/6)-3, "attack");
+				mvwprintw(win_fight, (win_fl/2)+7, (win_fw/6)-3, "escape");
+				mvwprintw(win_fight, (win_fl/2)+10, (win_fw/6)-3, "bag");
+				mvwprintw(win_fight, posy, (win_fw /6)-7 , "-->"); // Display setup
+						
+				if(mob.pv>0){
+					mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Monster turn ! ");
+					wrefresh(win_fight);				
+					sleep(1);
+					
+
+					if((rand()%10)%player.playerStat.dodge == 0){
+					
+						mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "You have dodge the attack !");
+						wrefresh(win_fight);
+						sleep(2);
+					}
+					else{
+						def = rand()%mob.def;
+						mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "The monster inflict you %d damage !", mob.atck-def);
+						player.playerStat.pv -= mob.atck-def;
+						wrefresh(win_fight);
+						sleep(2);				
+					}
+				}
+				
+				
+			}
+			else{ // Monster is faster case
+			
+				mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Monster turn ! ");
+				wrefresh(win_fight);			
+				sleep(1);
+					
+				if((rand()%10)%player.playerStat.dodge == 0){
+					
+					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "You have dodge the attack !");
+					wrefresh(win_fight);
+					sleep(2);
+				}
+				else{
+					def = rand()%mob.def;
+					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "The monster inflict you %d damage !", mob.atck-def);
+					player.playerStat.pv -= mob.atck-def;
+					wrefresh(win_fight);
+					sleep(2);				
+				}
+				
+				
+				
+				wclear(win_fight);
+			
+				box(win_fight, 0,0);	
+				box(win_a, 0, 0);
+				box(win_s, 0, 0);
+				mvwprintw(win_fight, 2, 2,"lvl %d", player.playerStat.level );
+				mvwprintw(win_fight, 1, (win_fw)-14, "Mob pv %d/%d", mob.pv, pvmob );
+				mvwprintw(win_fight, 1, 2, "PV %d/%d", player.playerStat.pv, pvtot );
+				mvwprintw(win_fight, (win_fl/2)+4, (win_fw/6)-3, "attack");
+				mvwprintw(win_fight, (win_fl/2)+7, (win_fw/6)-3, "escape");
+				mvwprintw(win_fight, (win_fl/2)+10, (win_fw/6)-3, "bag");
+				mvwprintw(win_fight, posy, (win_fw /6)-7 , "-->"); // Display setup
+				
+				
+				
+				mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Your turn !");
+				wrefresh(win_fight);
+				sleep(1);
+				
+				if(player.playerStat.pv>0){
+					if(((rand()%10)+1)%mob.dodge==0 ){ 
+					
+						mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "The monster dodge the attack !");
+						wrefresh(win_fight);
+						sleep(2);
+					}
+					else{
+						def = rand()%mob.def;
+						mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "You attack and inflict him %d damage !", player.playerStat.atck-def);//display of the fight information
+						mob.pv -= player.playerStat.atck-def;
+						wrefresh(win_fight);
+						sleep(2);		
+					}
+				}
+				
+			}
+			reward++;//Adding the survival bonus
+            
+            chr = getch(); //avoid the enter excess
+
+            while(chr != ERR){
+                chr = getch();
+            }
+		}
+		if(chr == ENTER && posy == (win_fl/2)+7 ){ // Escape option
+			
+			if(((rand()%10)+1)%(player.playerStat.dodge-6)==0 ){ // Chance of succesfully escape
+				mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Escape succed !");
+				wrefresh(win_fight);
+				sleep(1);
+				ex = 1;
+			}
+			else{
+				mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Escape failed !");
+				wrefresh(win_fight);
+				sleep(1);
+				mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Monster turn !");
+				wrefresh(win_fight);				
+				sleep(1);		
+				if((rand()%10)%player.playerStat.dodge == 0){
+					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "You have dodge the attack !");
+					wrefresh(win_fight);
+					sleep(2);
+				}
+				else{
+					def = rand()%mob.def;
+					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "The monster inflict you %d damage !", mob.atck-def);
+					player.playerStat.pv -= mob.atck-def;
+					wrefresh(win_fight);
+					sleep(2);				
+				}
+			
+		
+			}
+
+            chr = getch();
+
+            while(chr != ERR){
+                chr = getch();
+            }
+		}
+		
+		if(chr == ENTER && posy == (win_fl/2)+10 ){ // Bag option
+			mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "No bag yet !");
+			wrefresh(win_fight);
+			usleep(70000);
+
+            chr = getch();
+
+            while(chr != ERR){
+                chr = getch();
+            }
+		}
+		
+		
+		if(player.playerStat.pv<=0){
+			wclear(win_fight);
+			box(win_fight, 0,0);
+			mvwprintw(win_fight, (win_fl/2), (win_fw/2)-5, "YOU DIED "); // Loose screen
+			wrefresh(win_fight);
+			sleep(3);
+			player.live = 1;
+			ex = 1;
+		}
+		if(mob.pv<=0){
+			wclear(win_fight);
+			box(win_fight, 0,0);
+			mvwprintw(win_fight, (win_fl/2), (win_fw/2)-4, "Victory !"); // Victory Screen
+			wrefresh(win_fight);
+			sleep(2);
+			mvwprintw(win_fight, (win_fl/2)+2, (win_fw/2)-4, "You earn +%d exp !", player.playerStat.exp +=((rand()%30)+reward)); // Victory rewards
+			player = player_lvl_up(player); // level up check
+			wrefresh(win_fight);
+			sleep(3);
+			ex = 1; // Exit variable 
+		}
+		
+		
+		//chr = 0; // Reset to 0 to prevent the menu from entering an option because the enter input is kept
+		
+		
+		
+		wrefresh(win_fight);
+	}
+	
+	
+	return player;
+	
+	
+}	
+
 
 void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwidth){
     
@@ -1313,6 +1686,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
     srand(seed);
 
     Player j;
+    Mob m;
+
+    j = initPlayer();
 
     for(int i = 0; i<10; i++){
         j.inventory[i].type = -1;
@@ -1631,6 +2007,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
                 if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    m = initMob(j);
+                    j = fight(m, j, win, winlength, winwidth);
                     j.posy--;
                 }
                 else{
@@ -1693,6 +2071,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
                 if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    m = initMob(j);
+                    j = fight(m, j, win, winlength, winwidth);
                     j.posy++;
                 }
                 else{
@@ -1752,6 +2132,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
                 if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    m = initMob(j);
+                    j = fight(m, j, win, winlength, winwidth);
                     j.posx++;
                 }
                 else{
@@ -1813,6 +2195,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
                 if(doyouwantfight(winwidth, winlength, win, &stop) == 1){
+                    m = initMob(j);
+                    j = fight(m, j, win, winlength, winwidth);
                     j.posx--;
                 }
                 else{
@@ -1836,11 +2220,24 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             openinventory(winwidth, winlength, win ,j.inventory, &stop, &equipedsword, &equipedshild);
         }
 
-        if(ch == 27){
+        if(ch == 27){//pause menu
             exit(12);
         }
 
+        
 
+        if(j.live == 0){
+            j.posx = 0;
+            j.posy = 0;
+            place = 0;
+            int newXp = j.playerStat.exp/2;
+            j = initPlayer();
+
+            j.playerStat.exp = newXp;
+            j = player_lvl_up(j);
+
+        }
+     
 
 
         wclear(win);
