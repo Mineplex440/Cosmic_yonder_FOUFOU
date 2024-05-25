@@ -139,7 +139,7 @@ Item initItem(){ //Generation of the item
         i.buff = 35;
     }
     else if((decider >= 1) && (decider <=3)){
-        strcpy(i.name, "Sword");
+        strcpy(i.name, "Pistol");
         i.type = 0;
         i.buff = 10;
     }
@@ -661,8 +661,8 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
             if(actual_room->nbdoor[0].pos > actual_room->length && actual_room->nbdoor[0].pos > 1){
                     actual_room->nbdoor[0].pos--;
                 }
-            if(actual_room->nbdoor[2].pos > actual_room->length && actual_room->nbdoor[2].pos > 1){
-                    actual_room->nbdoor[2].pos--;
+            if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[2].pos > 1){
+                    actual_room->nbdoor[3].pos--;
                 }
 
 
@@ -804,8 +804,8 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                     actual_room->nbdoor[3].pos--;
                 }
 
-                if(actual_room->nbdoor[0].pos > actual_room->length && actual_room->nbdoor[0].pos > 1){
-                    actual_room->nbdoor[0].pos--;
+                if(actual_room->nbdoor[1].pos > actual_room->width && actual_room->nbdoor[0].pos > 1){
+                    actual_room->nbdoor[1].pos--;
                 }
                 if(actual_room->nbdoor[2].pos > actual_room->length && actual_room->nbdoor[2].pos > 1){
                     actual_room->nbdoor[2].pos--;
@@ -1183,6 +1183,15 @@ void printmap(WINDOW * win, int winlength, int winwidth, char ** map, int posy, 
         for(int j = 1; j <winwidth-1; j++){
             if(i == (winlength/2) && j == (winwidth/2)){
                 mvwprintw(win, winlength/2, winwidth/2, "☃");
+            }
+            else if(map[(mapwidth/2 )+ posy + i - (winlength/2) ][(maplength/2) + posx + j - (winwidth/2)] == 'I'){
+                mvwprintw(win, i , j, "I");  
+            }
+            else if(map[(mapwidth/2 )+ posy + i - (winlength/2) ][(maplength/2) + posx + j - (winwidth/2)] == 'M'){
+                mvwprintw(win, i , j, "M");  
+            }
+            else if(map[(mapwidth/2 )+ posy + i - (winlength/2) ][(maplength/2) + posx + j - (winwidth/2)] == 'T'){
+                mvwprintw(win, i , j, "T");  
             }
             else{
                 mvwprintw(win, i , j, "%c", map[(mapwidth/2 )+ posy + i - (winlength/2) ][(maplength/2) + posx + j - (winwidth/2)]);  
