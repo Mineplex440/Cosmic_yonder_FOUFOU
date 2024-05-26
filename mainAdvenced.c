@@ -2796,7 +2796,7 @@ int minigame5(WINDOW * win, int winwidth, int winlength){
 
     box(win, 0, 0);
        
-    mvwprintw(win, winwidth/2, winlength/3, "TASK 5 COMPLETE !");  
+    mvwprintw(win, winwidth/2, winlength/3, "TASK 1 COMPLETE !");  
         	
     wrefresh(win); 
         	
