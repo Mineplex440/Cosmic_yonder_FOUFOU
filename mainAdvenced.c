@@ -5,6 +5,8 @@
 #include <time.h>
 #include <string.h>
 
+
+
 #define ENTER 10
 #define NB_MOVE 4
 
@@ -21,9 +23,9 @@ typedef struct{
 }Spell;
 
 typedef struct{
-    int pv;
+    float pv;
     int tot_pv;
-    int exp;
+    float exp;
     int level;
     int atck; // Player attack
     int def; // Player defense
@@ -132,18 +134,18 @@ void initPlayer(Player * p,Item * inven){ //
 Item initItem(){ //Generation of the item
 
     Item i;
-    int decider = rand()%11;
+    int decider = (rand()%500)%101;
     if (decider == 0){
         strcpy(i.name, "LightSaber");
         i.type = 3;
         i.buff = 35;
     }
-    else if((decider >= 1) && (decider <=3)){
+    else if((decider >= 1) && (decider <=30)){
         strcpy(i.name, "Pistol");
         i.type = 0;
         i.buff = 10;
     }
-    else if((decider >= 4) && (decider <=6)){
+    else if((decider >= 31) && (decider <=60)){
         strcpy(i.name, "Shield");
         i.type = 1;
         i.buff = 15;
@@ -151,7 +153,7 @@ Item initItem(){ //Generation of the item
     else{
         strcpy(i.name, "Potion");
         i.type = 2;
-        decider = rand()%4;
+        decider = (rand()%100)%4;
         if(decider == 0){
             i.typebuff = 1;
             i.buff = 2;
@@ -169,14 +171,14 @@ Mob initMob(Player p){ //The mob is generated with the player level
 	Mob m;
 	int lvl = p.playerStat.level;
 	m.pv = 35 + (12*lvl);
-	m.atck = rand()%3+4;
-	m.def = rand()%2+1;
+	m.atck = ((rand()%100)%3)+4;
+	m.def = ((rand()%100)%2)+1;
 	m.dodge = 8;
-	m.speed = rand()%4+1;
+	m.speed = ((rand()%100)%4)+1;
 
 	for(int i=1;i<=lvl;i++){ // Loop who calibrate the mob to the player lvl
-		m.atck += (rand()%3)+2;
-		m.def += rand()%3;
+		m.atck += ((rand()%100)%3)+2;
+		m.def += (rand()%100)%3;
 		if((p.playerStat.level)%3 == 0){
 		     m.dodge --;
 		     m.speed ++;
@@ -185,11 +187,12 @@ Mob initMob(Player p){ //The mob is generated with the player level
 	return m;
 }
 
-void player_lvl_up(Player * p){
+void player_lvl_up(Player * p, int maxlvl){
 
 	int lvl = p->playerStat.exp/100;
 
-	while(p->playerStat.level < lvl ){
+    if(lvl <= maxlvl){
+        while(p->playerStat.level < lvl ){
 	
 		p->playerStat.level++;
 		p->playerStat.tot_pv += 10;
@@ -201,7 +204,10 @@ void player_lvl_up(Player * p){
 		     p->playerStat.speed ++;
 		}
 				
-	}
+	    }
+    }
+
+	
 
 }
 
@@ -381,6 +387,36 @@ void phantomishere(int winwidth, int winlength, WINDOW * win, int * stop){
     box(phantom, 0, 0);
 
     wrefresh(phantom);
+
+    sleep(1);
+
+    int te = time(NULL);
+
+    *stop += (te-t);
+
+
+}
+
+void invIsFull(int winwidth, int winlength, WINDOW * win, int * stop){
+
+    WINDOW * inv = NULL;
+
+    inv = subwin(win, 9, 60, (winlength/2)-2, (winwidth/2)-30);
+
+    if(inv == NULL){
+        printf("Error with invIsFull");
+        exit(14);
+    }
+
+    wclear(inv);
+
+    int t = time(NULL);
+
+    mvwprintw(inv, 4, 5, "Your inventory is full !");
+
+    box(inv, 0, 0);
+
+    wrefresh(inv);
 
     sleep(1);
 
@@ -661,7 +697,7 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
             if(actual_room->nbdoor[0].pos > actual_room->length && actual_room->nbdoor[0].pos > 1){
                     actual_room->nbdoor[0].pos--;
                 }
-            if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[2].pos > 1){
+            if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[3].pos > 1){
                     actual_room->nbdoor[3].pos--;
                 }
 
@@ -800,11 +836,11 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                     actual_room->nbdoor[0].pos--;
                 }
 
-                if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[1].pos > 1){
+                if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[3].pos > 1){
                     actual_room->nbdoor[3].pos--;
                 }
 
-                if(actual_room->nbdoor[1].pos > actual_room->width && actual_room->nbdoor[0].pos > 1){
+                if(actual_room->nbdoor[1].pos > actual_room->width && actual_room->nbdoor[1].pos > 1){
                     actual_room->nbdoor[1].pos--;
                 }
                 if(actual_room->nbdoor[2].pos > actual_room->length && actual_room->nbdoor[2].pos > 1){
@@ -884,7 +920,7 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                 actual_room->nbdoor[1].pos--;
             }
 
-            if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[1].pos > 1){
+            if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[3].pos > 1){
                     actual_room->nbdoor[3].pos--;
                 }
 
@@ -1056,7 +1092,7 @@ Door * placeNbDoor(int realtot_door, int pressed, int previous_room, int length,
 
 
 
-int createRoom(Room * law, int width_max_room, int lenght_max_room,int realtot_door, int pressed, int nb_door, int tot_door, int nb_room, int previous_room,int * count, int posx, int posy, char ** map, int map_width, int map_length){
+int createRoom(Room * law, int width_max_room, int lenght_max_room,int realtot_door, int pressed, int nb_door, int tot_door, int nb_room, int previous_room,int * count, int posx, int posy, char ** map, int map_width, int map_length, int * nbtask){
 
 
 
@@ -1105,7 +1141,17 @@ int createRoom(Room * law, int width_max_room, int lenght_max_room,int realtot_d
                 law->event[i].placey = (((rand()%100)%(law->width-2))+2);
             }
         }
-        law->event[i].typeEvent = (rand()%100)%3; // Random pick of the type of event
+        if(*nbtask < 5){
+            law->event[i].typeEvent = (rand()%100)%3; // Random pick of the type of event
+        }
+        else{
+            law->event[i].typeEvent = (rand()%100)%2;
+        }
+
+        if(law->event[i].typeEvent == 2){
+            (*nbtask)++;
+        }
+        
     }
 
 
@@ -1480,9 +1526,10 @@ void interactwithobject(WINDOW * win, int * equipedsword, int * equipedshield, i
         while(ch != ENTER){
             wclear(win);
             
-            mvwprintw(win, 2, 4, "REMOVE");
-            mvwprintw(win, 4, 4, "DROP");
-            mvwprintw(win, (2*posy)+2, 1, "->");
+            mvwprintw(win, 1, 4, "REMOVE");
+            mvwprintw(win, 3, 4, "DROP");
+            mvwprintw(win, 5, 4, "RETURN");
+            mvwprintw(win, (2*posy)+1, 1, "->");
 
             box(win, 0, 0);
 
@@ -1493,7 +1540,7 @@ void interactwithobject(WINDOW * win, int * equipedsword, int * equipedshield, i
             if(ch == KEY_UP && posy > 0){
                 posy--;
             }
-            if(ch == KEY_DOWN && posy < 1){
+            if(ch == KEY_DOWN && posy < 2){
                 posy++;
             }
 
@@ -1518,9 +1565,11 @@ void interactwithobject(WINDOW * win, int * equipedsword, int * equipedshield, i
 
         while(ch != ENTER){
             wclear(win);
-            mvwprintw(win, 2, 4, "REMOVE");
-            mvwprintw(win, 4, 4, "DROP");
-            mvwprintw(win, (2*posy)+2, 1, "->");
+            mvwprintw(win, 1, 4, "REMOVE");
+            mvwprintw(win, 3, 4, "DROP");
+            mvwprintw(win, 5, 4, "RETURN");
+            mvwprintw(win, (2*posy)+1, 1, "->");
+            box(win, 0, 0);
             wrefresh(win);
             
             ch = getch();
@@ -1528,7 +1577,7 @@ void interactwithobject(WINDOW * win, int * equipedsword, int * equipedshield, i
             if(ch == KEY_UP && posy > 0){
                 posy--;
             }
-            if(ch == KEY_DOWN && posy < 1){
+            if(ch == KEY_DOWN && posy < 2){
                 posy++;
             }
 
@@ -1554,9 +1603,17 @@ void interactwithobject(WINDOW * win, int * equipedsword, int * equipedshield, i
 
         while(ch != ENTER){
             wclear(win);
-            mvwprintw(win, 2, 4, "EQUIP");
-            mvwprintw(win, 4, 4, "DROP");
-            mvwprintw(win, (2*posy)+2, 1, "->");
+            if((inventory+((y*5)+(x)))->type == 2){
+                mvwprintw(win, 1, 4, "DRINK");
+            }
+            else{
+                mvwprintw(win, 1, 4, "EQUIP");
+                
+            }
+            mvwprintw(win, 3, 4, "DROP");
+            mvwprintw(win, 5, 4, "RETURN");
+            mvwprintw(win, (2*posy)+1, 1, "->");
+            box(win, 0, 0);
             wrefresh(win);
             
             ch = getch();
@@ -1564,7 +1621,7 @@ void interactwithobject(WINDOW * win, int * equipedsword, int * equipedshield, i
             if(ch == KEY_UP && posy > 0){
                 posy--;
             }
-            if(ch == KEY_DOWN && posy < 1){
+            if(ch == KEY_DOWN && posy < 2){
                 posy++;
             }
 
@@ -1749,11 +1806,12 @@ void openinventory(int winwidth, int winlength, WINDOW * win, Item * inventory, 
 }
 
 
-int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, int * stop, int * equipedsword, int * equipedshield){
+int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, int * stop, int * equipedsword, int * equipedshield, int maxlvl){
 	/*Function that will manage the fight between a mob and the player->*
 	The function takes 5 arguments : the mob and the player, with the window and his length and witdth*/
 
     clear();
+    refresh();
 
 	
 
@@ -1813,8 +1871,6 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 	
 	sleep(1);
 	
-	wclear(win_fight);
-	
 	while(ex != 1 && ex != 2 ){ // fight loop
 	
 	
@@ -1825,8 +1881,10 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 		box(win_fight, 0,0);	
 		box(win_a, 0, 0);
 		box(win_s, 0, 0);
+        mvwprintw(win_fight, (win_fl/2)+1, (win_fw/2)-5, "☃");
+        mvwprintw(win_fight, (win_fl/2)-4, (win_fw/2)+15, "M");
 		mvwprintw(win_fight, 2, 2,"lvl %d", player->playerStat.level );
-		mvwprintw(win_fight, 1, 2, "PV %d/%d", player->playerStat.pv, player->playerStat.tot_pv );
+		mvwprintw(win_fight, 1, 2, "PV %.0f/%d", player->playerStat.pv, player->playerStat.tot_pv );
 		mvwprintw(win_fight, 1, (win_fw)-15, "Mob pv %d/%d", mob.pv, pvmob );
 		mvwprintw(win_fight, (win_fl/2)+4, (win_fw/6)-3, "attack");
 		mvwprintw(win_fight, (win_fl/2)+7, (win_fw/6)-3, "escape");
@@ -1851,7 +1909,7 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 				mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Your turn !");
 				wrefresh(win_fight);
 				sleep(1);
-				if(((rand()%10)+1)%mob.dodge==0 ){ // Chance of miss the attack
+				if((((rand()%100)%10)+1)%mob.dodge==0 ){ // Chance of miss the attack
 				
 					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "The monster dodge the attack !"); 
 					wrefresh(win_fight);
@@ -1859,10 +1917,15 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 				}
 				else{
 					def_value = mob.def;
-					def = rand()%def_value;
+					def = (rand()%100)%def_value;
 					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "You attack and inflict him %d damage !", player->playerStat.atck-def);//display of the fight information
 					mob.pv -= player->playerStat.atck-def;
 					wrefresh(win_fight);
+                    for(int i = 0; i<3; i++){
+                        mvwprintw(win_fight, (win_fl/2)+0-(i*2), (win_fw/2)-4+(7*i),"----");
+                        wrefresh(win_fight);
+                        usleep(50000);
+                    }
 					sleep(1);		
 				}
 				
@@ -1874,9 +1937,11 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 				box(win_fight, 0,0);	
 				box(win_a, 0, 0);
 				box(win_s, 0, 0);
+                mvwprintw(win_fight, (win_fl/2)+1, (win_fw/2)-5, "☃");
+                mvwprintw(win_fight, (win_fl/2)-4, (win_fw/2)+15, "M");
 				mvwprintw(win_fight, 2, 2,"lvl %d", player->playerStat.level );
-				mvwprintw(win_fight, 1, (win_fw)-14, "Mob pv %d/%d", mob.pv, pvmob );
-				mvwprintw(win_fight, 1, 2, "PV %d/%d", player->playerStat.pv, player->playerStat.tot_pv );
+				mvwprintw(win_fight, 1, (win_fw)-15, "Mob pv %d/%d", mob.pv, pvmob );
+				mvwprintw(win_fight, 1, 2, "PV %.0f/%d", player->playerStat.pv, player->playerStat.tot_pv );
 				mvwprintw(win_fight, (win_fl/2)+4, (win_fw/6)-3, "attack");
 				mvwprintw(win_fight, (win_fl/2)+7, (win_fw/6)-3, "escape");
 				mvwprintw(win_fight, (win_fl/2)+10, (win_fw/6)-3, "bag");
@@ -1888,17 +1953,22 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 					sleep(1);
 					
 
-					if((rand()%10)%player->playerStat.dodge == 0){
+					if(((rand()%100)%10)%player->playerStat.dodge == 0){
 					
 						mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "You have dodge the attack !");
 						wrefresh(win_fight);
 						sleep(1);
 					}
 					else{
-						def = rand()%mob.def;
+						def = (rand()%100)%mob.def;
 						mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "The monster inflict you %d damage !", mob.atck-def);
 						player->playerStat.pv -= mob.atck-def;
 						wrefresh(win_fight);
+                        for(int i = 0; i<3; i++){
+                            mvwprintw(win_fight, (win_fl/2)-3+(i*2), (win_fw/2)+10-(7*i),"----");
+                            wrefresh(win_fight);
+                            usleep(50000);
+                        }
 						sleep(1);				
 					}
 				}
@@ -1911,17 +1981,22 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 				wrefresh(win_fight);			
 				sleep(1);
 					
-				if((rand()%10)%player->playerStat.dodge == 0){
+				if(((rand()%100)%10)%player->playerStat.dodge == 0){
 					
 					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "You have dodge the attack !");
 					wrefresh(win_fight);
 					sleep(1);
 				}
 				else{
-					def = rand()%mob.def;
+					def = (rand()%100)%mob.def;
 					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "The monster inflict you %d damage !", mob.atck-def);
 					player->playerStat.pv -= mob.atck-def;
 					wrefresh(win_fight);
+                    for(int i = 0; i<3; i++){
+                        mvwprintw(win_fight, (win_fl/2)-3+(i*2), (win_fw/2)+10-(7*i),"----");
+                        wrefresh(win_fight);
+                        usleep(50000);
+                    }
 					sleep(1);				
 				}
 				
@@ -1934,9 +2009,11 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 				box(win_fight, 0,0);	
 				box(win_a, 0, 0);
 				box(win_s, 0, 0);
+                mvwprintw(win_fight, (win_fl/2)+1, (win_fw/2)-5, "☃");
+                mvwprintw(win_fight, (win_fl/2)-4, (win_fw/2)+15, "M");
 				mvwprintw(win_fight, 2, 2,"lvl %d", player->playerStat.level );
-				mvwprintw(win_fight, 1, (win_fw)-14, "Mob pv %d/%d", mob.pv, pvmob );
-				mvwprintw(win_fight, 1, 2, "PV %d/%d", player->playerStat.pv, player->playerStat.tot_pv );
+				mvwprintw(win_fight, 1, (win_fw)-15, "Mob pv %d/%d", mob.pv, pvmob );
+				mvwprintw(win_fight, 1, 2, "PV %.0f/%d", player->playerStat.pv, player->playerStat.tot_pv );
 				mvwprintw(win_fight, (win_fl/2)+4, (win_fw/6)-3, "attack");
 				mvwprintw(win_fight, (win_fl/2)+7, (win_fw/6)-3, "escape");
 				mvwprintw(win_fight, (win_fl/2)+10, (win_fw/6)-3, "bag");
@@ -1949,17 +2026,22 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 				sleep(1);
 				
 				if(player->playerStat.pv>0){
-					if(((rand()%10)+1)%mob.dodge==0 ){ 
+					if((((rand()%100)%10)+1)%mob.dodge==0 ){ 
 					
 						mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "The monster dodge the attack !");
 						wrefresh(win_fight);
 						sleep(1);
 					}
 					else{
-						def = rand()%mob.def;
+						def = (rand()%100)%mob.def;
 						mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "You attack and inflict him %d damage !", player->playerStat.atck-def);//display of the fight information
 						mob.pv -= player->playerStat.atck-def;
 						wrefresh(win_fight);
+                        for(int i = 0; i<3; i++){
+                            mvwprintw(win_fight, (win_fl/2)+0-(i*2), (win_fw/2)-4+(7*i),"----");
+                            wrefresh(win_fight);
+                            usleep(50000);
+                        }
 						sleep(1);		
 					}
 				}
@@ -1976,7 +2058,7 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 		}
 		if(chr == ENTER && posy == (win_fl/2)+7 ){ // Escape option
 			
-			if(((rand()%10)+1)%(player->playerStat.dodge-4)==0 ){ // Chance of succesfully escape
+			if((((rand()%100)%10)+1)%(player->playerStat.dodge-4)==0 ){ // Chance of succesfully escape
 				mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Escape succed !");
 				wrefresh(win_fight);
 				sleep(1);
@@ -1989,16 +2071,21 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 				mvwprintw(win_fight, (win_fl/2)+9, (win_fw/6)+6, "Monster turn !");
 				wrefresh(win_fight);				
 				sleep(1);		
-				if((rand()%10)%player->playerStat.dodge == 0){
+				if(((rand()%100)%10)%player->playerStat.dodge == 0){
 					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "You have dodge the attack !");
 					wrefresh(win_fight);
 					sleep(1);
 				}
 				else{
-					def = rand()%mob.def;
+					def = (rand()%100)%mob.def;
 					mvwprintw(win_fight, (win_fl/2)+11, (win_fw/6)+6, "The monster inflict you %d damage !", mob.atck-def);
 					player->playerStat.pv -= mob.atck-def;
 					wrefresh(win_fight);
+                    for(int i = 0; i<3; i++){
+                        mvwprintw(win_fight, (win_fl/2)-3+(i*2), (win_fw/2)+10-(7*i),"----");
+                        wrefresh(win_fight);
+                        usleep(50000);
+                    }
 					sleep(1);				
 				}
 			
@@ -2045,12 +2132,22 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 			mvwprintw(win_fight, (win_fl/2), (win_fw/2)-4, "Victory !"); // Victory Screen
 			wrefresh(win_fight);
 			sleep(2);
-			reward += (rand()%30)+reward;
+			reward += ((rand()%100)%30)+reward;
 			player->playerStat.exp +=reward;
 			mvwprintw(win_fight, (win_fl/2)+2, (win_fw/2)-4, "You earn +%d exp !", reward); // Victory rewards
-			player_lvl_up(player); // level up check
-			wrefresh(win_fight);
+            wrefresh(win_fight);
 			sleep(1);
+
+            if( (player->playerStat.exp/100) > maxlvl){
+                mvwprintw(win_fight, (win_fl/2)+4, (win_fw/2)-4, "You are max level !"); //check lvl max
+                wrefresh(win_fight);
+                sleep(2);
+            }
+            else{
+                player_lvl_up(player, maxlvl); // level up check
+            }
+			
+			
 			ex = 2; // Exit variable 
 		}
 		
@@ -2073,13 +2170,15 @@ int pauseMenu(int winwidth, int winlength, int winposx, int winposy,WINDOW * win
 
     int y = 0;
 
+    int exit = -1;
+
     int ch = 0;
 
     int t = time(NULL);
 
     wclear(win);
 
-    while(ch != 27){
+    while(exit == -1){
 
        
 
@@ -2105,11 +2204,15 @@ int pauseMenu(int winwidth, int winlength, int winposx, int winposy,WINDOW * win
         }
 
         if(ch == ENTER && y == 0){
-            return 0;
+            exit = 0;
         }
 
         if(ch == ENTER && y == 1){
-            return 1;
+            exit = 1;
+        }
+
+        if(ch == 27){
+            exit = 0;
         }
 
         
@@ -2119,7 +2222,297 @@ int pauseMenu(int winwidth, int winlength, int winposx, int winposy,WINDOW * win
     int te = time(NULL);
     *stop += (te-t);
 
+    if(exit == 1)
+    {
+        return 1;
+    }
+    else{
+        return -1;
+    }
+    
+    
+}
+
+int minigame1(WINDOW * win, int winwidth, int winlength){
+
+    char c[20] = "VOID";
+
+    int ch = 0;
+
+    int ex = 0;
+
+    wclear(win);
+
+    mvwprintw(win, winwidth/2, winlength/3, "TASK 1");
+
+    box(win, 0, 0);
+
+    wrefresh(win);
+
+    sleep(1);
+
+    echo();
+
+    wclear(win);
+
+    mvwprintw(win, winwidth/2-2, winlength/3, "%d try left", 3-ex);
+
+    mvwprintw(win, winwidth/2, winlength/3, "YOU NEED TO REBOOT THE SYSTEM");
+
+    mvwprintw(win, (winwidth/2)+2, winlength/10, "<┘ TO CONFIRM | GIVE THE ORDER '/REBOOT_SYS.exe' : ");
+
+    box(win, 0, 0);
+
+    wrefresh(win);
+
+    wgetnstr(win, c, 19);
+
+
+
+        
+
+    while(strcmp(c, "/REBOOT_SYS.exe") != 0 && ex < 3){
+
+        ex++;
+
+        wclear(win);
+
+        mvwprintw(win, winwidth/2-2, winlength/3, "%d try left", 3-ex);
+
+        mvwprintw(win, winwidth/2, winlength/3, "YOU NEED TO REBOOT THE SYSTEM");
+
+        mvwprintw(win, (winwidth/2)+2, winlength/5, "<┘ TO CONFIRM | GIVE THE ORDER '/REBOOT_SYS.exe' : ");
+
+        box(win, 0, 0);
+
+        wrefresh(win);
+
+        wgetnstr(win, c, 35);
+
+    }
+
+    noecho();
+
+    if(ex == 3){
+        return 0;
+    } 
+    else{
+        return 1;
+    }
+
+
+        
+
+
+
+}
+
+int minigame2(WINDOW * win, int winwidth, int winlength){
+
+    int ch = 0;
+
+    int vartuch = 0;
+
+    int ex = 0;
+
+    int wherestop = ((rand()%100)%41)+10;
+
+    wclear(win);
+
+    mvwprintw(win, winwidth/2, winlength/3, "TASK 2");
+
+    box(win, 0, 0);
+
+    wrefresh(win);
+
+    sleep(1);
+
+    while (ex < 3)
+    {
+        wclear(win);
+        mvwprintw(win, winwidth/2-2, winlength/3, "%d try remain", ex);
+
+        mvwprintw(win, winwidth/2, winlength/3, "BE PRECISE");
+
+        for(int i = 0; i<50; i++){
+            mvwprintw(win, (winwidth/2)+2, winlength/5+i, "-");
+        }
+
+        mvwprintw(win, (winwidth/2)+1, winlength/5+wherestop, "*");
+
+        mvwprintw(win, (winwidth/2)+3, winlength/5+vartuch, "^");
+        mvwprintw(win, (winwidth/2)+4, winlength/5+vartuch, "|");
+
+        box(win, 0, 0);
+
+        wrefresh(win);
+
+        ch = getch();
+
+        if(ch == KEY_RIGHT && vartuch < 50){
+            vartuch++;
+        }
+
+        while (ch == KEY_RIGHT && vartuch < 50)
+        {
+            ch = getch();
+
+            vartuch++;
+
+
+            wclear(win);
+            mvwprintw(win, winwidth/2-2, winlength/3, "%d try remain", ex);
+
+             mvwprintw(win, winwidth/2, winlength/3, "BE PRECISE");
+
+            for(int i = 0; i<50; i++){
+                mvwprintw(win, (winwidth/2)+2, winlength/5+i, "-");
+            }
+
+            mvwprintw(win, (winwidth/2)+1, winlength/5+wherestop, "*");
+
+            mvwprintw(win, (winwidth/2)+3, winlength/5+vartuch, "^");
+            mvwprintw(win, (winwidth/2)+4, winlength/5+vartuch, "|");
+
+            box(win, 0, 0);
+
+            wrefresh(win);
+        }
+        
+
+        if(vartuch > wherestop){
+            vartuch = 0;
+            ex++;
+        }
+
+        if(vartuch == wherestop){
+            ex = 4;
+        }
+
+
+    }
+
+    wclear(win);
+
+    mvwprintw(win, winwidth/2, winlength/3, "YOU WIN");
+
+    box(win, 0, 0);
+
+    wrefresh(win);
+
+    sleep(1);
+    
+
+    if(ex == 3){
+        return 0;
+    }
+    else{
+        return 1;
+    }
+    
+}
+
+int minigame3(WINDOW * win, int winwidth, int winlength){
+
+    int ch = 0;
+
+    int ex = 0;
+
+    wclear(win);
+
+    mvwprintw(win, winwidth/2, winlength/3, "TASK 3");
+
+    box(win, 0, 0);
+
+    wrefresh(win);
+
+    sleep(1);
+
     return 0;
+    
+}
+
+int minigame4(WINDOW * win, int winwidth, int winlength){
+
+    int ch = 0;
+
+    int ex = 0;
+
+    wclear(win);
+
+    mvwprintw(win, winwidth/2, winlength/3, "TASK 4");
+
+    box(win, 0, 0);
+
+    wrefresh(win);
+
+    sleep(1);
+
+    return 0;
+    
+}
+
+int minigame5(WINDOW * win, int winwidth, int winlength){
+
+    int ch = 0;
+
+    int ex = 0;
+
+    wclear(win);
+
+    mvwprintw(win, winwidth/2, winlength/3, "TASK 5");
+
+    box(win, 0, 0);
+
+    wrefresh(win);
+
+    sleep(1);
+
+    return 0;
+    
+}
+
+
+int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued){
+
+    int ex = -1;
+
+    WINDOW * task = NULL;
+
+    task = subwin(win, winlength/2 , winwidth-20, winlength/3, winwidth/8);
+
+    if(task == NULL){
+        printf("Error with task1");
+        exit(21);
+    }
+
+    if(taskeffectued == 0){
+        ex = (minigame1(task, winlength/2, winwidth-20));
+    }
+
+    if(taskeffectued == 1){
+        ex = (minigame2(task, winlength/2, winwidth-20));
+    }
+
+    if(taskeffectued == 2){
+        
+    }
+
+    if(taskeffectued == 3){
+        
+    }
+
+    if(taskeffectued == 4){
+        
+    }
+
+    if(ex == 1){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+
 }
 
 
@@ -2155,25 +2548,26 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         j.inventory[i].typebuff = -1;
     }
     
+    int maxlvl = 20;
+    
     initPlayer(&j ,j.inventory);
-    player_lvl_up(&j);
+    player_lvl_up(&j, maxlvl);
 
     j.name = createName(win, winwidth, winlength);
+
+    float dividepv = j.playerStat.pv/(j.playerStat.tot_pv); 
+    
 
     int equipedsword = -1;
     int equipedshild = -1;
 
-    //j.playerStat.move[0].accuracy = 0.7;
-    //j.playerStat.move[0].power = 10/100;
+    int nbtask = 0;
+    int taskeffectued = 0;
 
-    //j.playerStat.move[1].accuracy = 0.8;
-    //j.playerStat.move[1].power = 2;
+    int mobkilled = 0;
 
-    //j.playerStat.move[2].accuracy = 0.7;
-    //j.playerStat.move[2].power = 2.5;
+    int lootpicked = 0;
 
-    //j.playerStat.move[3].accuracy = 1;
-    //j.playerStat.move[1].power = -(10/100) ;
 
 
 
@@ -2236,8 +2630,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         }
     }
     
-    createRoom(room+place ,width_max_room, lenght_max_room, tot_room ,-1 ,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length);
+    createRoom(room+place ,width_max_room, lenght_max_room, tot_room ,-1 ,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length, &nbtask);
 
+/*
     int placementx = (tot_room+2)/2;
     int placementy = (tot_room+2)/2;
     int canplaceroom[4] = {0, 0, 0, 0};
@@ -2265,6 +2660,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
     }
 
     placement[placementy][placementx] = room[place].nb;
+*/
+
 
     placeRoom(map, size_map_width, size_map_length, -1, room[place], j.posx, j.posy, winwidth, winlength);
 
@@ -2276,16 +2673,59 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     int te = time(NULL);
 
+
     Time tim;
 
-    while(exitCond != 1){
+    while(exitCond == -1){
+
+
 
 
         te = time(NULL);
-        tim = createTime(timer - (te-t-stop));    
+
+
+
+        tim = createTime(timer - (te - t - stop));
+
+
         mvwprintw(stdscr, winposy-1, winposx+(winwidth/2)-13, "匚ㄖ丂爪丨匚  ㄚㄖ几ᗪ乇尺\n");
         mvwprintw(stdscr, winposy-1, winposx+1, "CURRENT SEED : %d", seed);
         mvwprintw(stdscr, winlength+winposy+1, winposx+1, "TIME : %d min, %d sec", tim.min, tim.sec);
+        mvwprintw(stdscr, winlength+winposy+1, winposx+30, "HP : %.0f/%d", j.playerStat.pv, j.playerStat.tot_pv);
+
+        dividepv = j.playerStat.pv/j.playerStat.tot_pv; 
+
+        mvwprintw(stdscr, winlength+winposy+1, winposx+43,"[");
+
+        for(int i = 0; i < 10 ; i++){
+            if(i < ((dividepv)*10)){
+                mvwprintw(stdscr, winlength+winposy+1, winposx+44+i,"♥");
+            }
+            else{
+                mvwprintw(stdscr, winlength+winposy+1, winposx+44+i,"-");
+            }
+            
+        }
+
+        printw("]");
+
+
+        mvwprintw(stdscr, winlength+winposy+1, winposx+winwidth-35, "LVL : %d ", j.playerStat.level);
+
+        mvwprintw(stdscr, winlength+winposy+1, winposx+winwidth-25,"[");
+
+        for(int i = 0; i < 10 ; i++){
+            if(i < (((j.playerStat.exp - (j.playerStat.level * 100)) / 100) *10)){
+                mvwprintw(stdscr, winlength+winposy+1, winposx+winwidth-24+i,"💡");
+            }
+            else{
+                mvwprintw(stdscr, winlength+winposy+1, winposx+winwidth-24+i,"-");
+            }
+            
+        }
+
+        printw("]");
+
 
     /*
         mvwprintw(stdscr, 0, winwidth+winposx+2, "We are on the room %d", (room+place)->nb);
@@ -2348,7 +2788,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                 if(doyouwantchangeroom(winwidth, winlength, win, &stop) == 1){
                 place_before = room[place].nb;
                 place = room[place].nbdoor[2].remote;
-                placementy += 1;
+                //placementy += 1;
                 if(room[place].nbdoor == NULL){
 
                 /*
@@ -2453,7 +2893,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                         nb_door = 0;
                     }
 
-                    if(createRoom(room+place,width_max_room, lenght_max_room, tot_room,0,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length) == 0){
+                    if(createRoom(room+place,width_max_room, lenght_max_room, tot_room,0,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length, &nbtask) == 0){
                         phantomishere(winwidth, winlength, win, &stop);
                         place = place_before;
                         j.posy -= 3;
@@ -2474,8 +2914,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 0) == 1){
                     m = initMob(j);
-                    if(fight(m, &j, win, winlength, winwidth, &stop, &equipedsword, &equipedshild) == 2){
+                    if(fight(m, &j, win, winlength, winwidth, &stop, &equipedsword, &equipedshild, maxlvl) == 2){
                         map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        mobkilled++;
                     }
                     j.posy--;
                 }
@@ -2508,9 +2949,18 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                         }
                     }
 
+                    if(countinv >= 10){
+                        invIsFull(winwidth, winlength, win, &stop);
+                        j.posy--;
+                    }
 
-                    map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
-                    j.posy--;
+                    else{
+                        map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        j.posy--;
+                    }
+
+
+                    
                 }
                 else{
                     j.posy--;
@@ -2519,6 +2969,10 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
+                    if(Inittask(win, winwidth, winlength, taskeffectued) == 1){
+                        map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        taskeffectued++;
+                    }
                     j.posy--;
                 }
                 else{
@@ -2537,7 +2991,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                 if(doyouwantchangeroom(winwidth, winlength, win, &stop) == 1){
                 place_before = room[place].nb;
                 place = room[place].nbdoor[0].remote;
-                placementy -= 1;
+                //placementy -= 1;
                 if(room[place].nbdoor == NULL){
                     tot_door = (room[place_before].nbdoor[0].howmuchroom)-1;
                     if(tot_door >= 3){
@@ -2552,7 +3006,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     else{
                         nb_door = 0;
                     }
-                    if(createRoom(room+place,width_max_room, lenght_max_room, tot_room,2,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length) == 0){
+                    if(createRoom(room+place,width_max_room, lenght_max_room, tot_room,2,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length, &nbtask) == 0){
                         phantomishere(winwidth, winlength, win, &stop);
                         place = place_before;
                         j.posy += 3;
@@ -2573,8 +3027,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 0) == 1){
                     m = initMob(j);
-                    if(fight(m, &j, win, winlength, winwidth, &stop, &equipedsword, &equipedshild) == 2){
+                    if(fight(m, &j, win, winlength, winwidth, &stop, &equipedsword, &equipedshild, maxlvl) == 2){
                         map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        mobkilled++;
                     }
                     j.posy++;
                 }
@@ -2606,8 +3061,17 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                         }
                     }
 
-                    map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
-                    j.posy++;
+                    if(countinv >= 10){
+                        invIsFull(winwidth, winlength, win, &stop);
+                        j.posy++;
+                    }
+
+                    else{
+                        map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        j.posy++;
+                    }
+
+                    
                 }
                 else{
                     j.posy++;
@@ -2616,6 +3080,12 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
+
+                    if(Inittask(win, winwidth, winlength, taskeffectued) == 1){
+                        map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        taskeffectued++;
+                    }
+
                     j.posy++;
                 }
                 else{
@@ -2631,7 +3101,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                 if(doyouwantchangeroom(winwidth, winlength, win, &stop) == 1){
                 place_before = room[place].nb;
                 place = room[place].nbdoor[3].remote;
-                placementx -= 1;
+                //placementx -= 1;
                 if(room[place].nbdoor == NULL){
                     tot_door = (room[place_before].nbdoor[3].howmuchroom)-1;
                     if(tot_door >= 3){
@@ -2646,7 +3116,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     else{
                         nb_door = 0;
                     }
-                    if(createRoom(room+place,width_max_room, lenght_max_room, tot_room,1,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length) == 0){
+                    if(createRoom(room+place,width_max_room, lenght_max_room, tot_room,1,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length, &nbtask) == 0){
                         phantomishere(winwidth, winlength, win, &stop);
                         place = place_before;
                         j.posx+=3;
@@ -2667,8 +3137,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 0) == 1){
                     m = initMob(j);
-                    if(fight(m, &j, win, winlength, winwidth, &stop, &equipedsword, &equipedshild) == 2){
+                    if(fight(m, &j, win, winlength, winwidth, &stop, &equipedsword, &equipedshild, maxlvl) == 2){
                         map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        mobkilled++;
                     }
                     j.posx++;
                 }
@@ -2700,8 +3171,17 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                         }
                     }
 
-                    map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
-                    j.posx++;
+                    if(countinv >= 10){
+                        invIsFull(winwidth, winlength, win, &stop);
+                        j.posx++;
+                    }
+
+                    else{
+                        map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        j.posx++;
+                    }
+
+                    
                 }
                 else{
                     j.posx++;
@@ -2710,6 +3190,10 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
+                    if(Inittask(win, winwidth, winlength, taskeffectued) == 1){
+                        map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        taskeffectued++;
+                    }
                     j.posx++;
                 }
                 else{
@@ -2726,7 +3210,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                 if(doyouwantchangeroom(winwidth, winlength, win, &stop) == 1){
                 place_before = room[place].nb;
                 place = room[place].nbdoor[1].remote;
-                placementx += 1;
+                //placementx += 1;
                 if(room[place].nbdoor == NULL){
                     tot_door = (room[place_before].nbdoor[1].howmuchroom)-1;
                     if(tot_door >= 3){
@@ -2741,7 +3225,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     else{
                         nb_door = 0;
                     }
-                    if(createRoom(room+place,width_max_room, lenght_max_room, tot_room, 3, nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length) == 0){
+                    if(createRoom(room+place,width_max_room, lenght_max_room, tot_room, 3, nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length, &nbtask) == 0){
                         phantomishere(winwidth, winlength, win, &stop);
                         place = place_before;
                         j.posx -= 3;
@@ -2763,8 +3247,9 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'M'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 0) == 1){
                     m = initMob(j);
-                    if(fight(m, &j, win, winlength, winwidth, &stop, &equipedsword, &equipedshild) == 2){
+                    if(fight(m, &j, win, winlength, winwidth, &stop, &equipedsword, &equipedshild, maxlvl) == 2){
                         map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        mobkilled++;
                     }
                     
                     j.posx--;
@@ -2797,8 +3282,17 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                         }
                     }
 
-                    map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
-                    j.posx--;
+                    if(countinv >= 10){
+                        invIsFull(winwidth, winlength, win, &stop);
+                        j.posx--;
+                    }
+
+                    else{
+                        map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        j.posx--;
+                    }
+
+                    
                 }
                 else{
                     j.posx--;
@@ -2807,6 +3301,10 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
+                    if(Inittask(win, winwidth, winlength, taskeffectued) == 1){
+                        map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        taskeffectued++;
+                    }
                     j.posx--;
                 }
                 else{
@@ -2826,6 +3324,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             wclear(win);
             exitCond = pauseMenu(winwidth, winlength, winposy, winposx , win, &stop);
+
         }
 
 
@@ -2845,16 +3344,18 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             j.playerStat.exp = newXp;
             
-            player_lvl_up(&j);
+            player_lvl_up(&j, maxlvl);
 
         }
 
-        if(timer - (te-t-stop) <= 0){
+
+        if(timer - (te - t - stop) <= 0){
             clear();
             box(win, 0, 0);
             wrefresh(win);
             mvwprintw(win, winlength/2, (winwidth/2)-12, "<┘ TO LEAVE | NO MORE TIME !");
             wrefresh(win);
+
             ch = 0;
 
             while (ch != ENTER)
@@ -2863,7 +3364,27 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             }
             
             
-            exitCond = 1;
+            exitCond = 2;
+        }
+
+        if(taskeffectued == 5 || mobkilled == 10){
+
+            clear();
+            box(win, 0, 0);
+            wrefresh(win);
+            mvwprintw(win, winlength/2, (winwidth/2)-12, "<┘ TO LEAVE | YOU WIN !");
+            wrefresh(win);
+
+            ch = 0;
+
+            while (ch != ENTER)
+            {
+                ch = getch();
+            }
+            
+            
+            exitCond = 2;
+
         }
 
      
@@ -2877,7 +3398,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     }
 
-    if(timer - (te-t-stop) <= 0){
+    if(exitCond == 2){
         //NO SAVE
     }
 
@@ -3005,6 +3526,7 @@ void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy
         if (chr == ENTER && posy == y+beg){
             quitAnim(win, winlength, winwidth);
             startagame(win, winposx, winposy, winlength, winwidth);
+            clear();
             startAnim(win, winlength, winwidth, posx, posy, x, y, beg, space);
         }
         if (chr == ENTER && posy == y+(beg+(space))){
