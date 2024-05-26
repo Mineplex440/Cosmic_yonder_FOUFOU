@@ -1820,6 +1820,10 @@ void openinventory(int winwidth, int winlength, WINDOW * win, Item * inventory, 
                 mvwprintw(actionmenu, 3, 2, "You can do nothing here !");
                 wrefresh(actionmenu);
                 sleep(1);
+                ch = getch();
+                while(ch != ERR){
+                    ch = getch();
+                }
                 wclear(actionmenu);
             }
             else{
@@ -2173,7 +2177,7 @@ int fight(Mob mob, Player * player, WINDOW * win, int winlength, int winwidth, i
 			mvwprintw(win_fight, (win_fl/2), (win_fw/2)-4, "Victory !"); // Victory Screen
 			wrefresh(win_fight);
 			sleep(2);
-			reward += ((rand()%100)%30)+reward;
+			reward += (((rand()%100)%30)+30)+reward;
 			player->playerStat.exp +=reward;
 			mvwprintw(win_fight, (win_fl/2)+2, (win_fw/2)-4, "You earn +%d exp !", reward); // Victory rewards
             wrefresh(win_fight);
@@ -2415,7 +2419,7 @@ int minigame2(WINDOW * win, int winwidth, int winlength){
 
         while (ch == KEY_RIGHT && vartuch < 50)
         {
-            ch = getch();
+            
 
             vartuch++;
 
@@ -2435,6 +2439,8 @@ int minigame2(WINDOW * win, int winwidth, int winlength){
             mvwprintw(win, (winwidth/2)+4, winlength/5+vartuch, "|");
 
             box(win, 0, 0);
+            
+            ch = getch();
 
             wrefresh(win);
         }
@@ -2462,6 +2468,8 @@ int minigame2(WINDOW * win, int winwidth, int winlength){
         wrefresh(win);
 
         sleep(1);
+
+        return 1;
     }
 
     else{
@@ -2474,16 +2482,8 @@ int minigame2(WINDOW * win, int winwidth, int winlength){
         wrefresh(win);
 
         sleep(1);
-    }
 
-    
-
-
-    if(ex == 3){
         return 0;
-    }
-    else{
-        return 1;
     }
     
 }
@@ -2594,14 +2594,33 @@ int minigame3(WINDOW * win, int winwidth, int winlength){
     noecho();
 
     if(ex == 12){
+        wclear(win);
+
+        mvwprintw(win, winwidth/2, winlength/3, "YOU WIN");
+
+        box(win, 0, 0);
+
+        wrefresh(win);
+
+        sleep(1);
+
         return 1;
     }
+
     else{
+        wclear(win);
+
+        mvwprintw(win, winwidth/2, winlength/3, "YOU LOOSE");
+
+        box(win, 0, 0);
+
+        wrefresh(win);
+
+        sleep(1);
+
         return 0;
     }
 
-    
-    
 }
 
 int minigame4(WINDOW * win, int winwidth, int winlength){
@@ -2647,23 +2666,144 @@ int minigame4(WINDOW * win, int winwidth, int winlength){
 }
 
 int minigame5(WINDOW * win, int winwidth, int winlength){
-
+	/*Function which is the fifth task of the game, it's a function which return 1 if the player
+	successfully enter the good answer else 0, she take 3 argument a window, his length and width*/
     int ch = 0;
 
-    int ex = 0;
+    int ex = 1; // Success condition
+    
+    int posx; //Positon x of the operation that will be print on the window
+    
+    int posy; //Position y of the operation that will be print on the window
+    
+    int a; // First value of the operation that will printed
+    int b; // Second value of the operation that will printed
 
+    int random_t; // Random amount of time when waiting for the next operation
+
+    char result[3]; // Player answer variable
+    int iresult; // Player answer converted to int	
+
+    int ms_time = 800000; // Time in milliseconds where the operation will be displayed
     wclear(win);
 
-    mvwprintw(win, winwidth/2, winlength/3, "TASK 5");
-
     box(win, 0, 0);
+
+    mvwprintw(win, winwidth/2, winlength/3, "TASK 5");    
 
     wrefresh(win);
 
     sleep(1);
-
-    return 0;
     
+    wclear(win);
+
+    box(win, 0, 0);
+   
+
+    for(int i=0;i<3;i++){
+    
+    	ms_time -= 100000; // Next rouned the player will have less time to see the operation
+    
+    	random_t = ((rand()%100)%3)+1;
+    
+    	posx = ((rand()%100)%(winlength-10))+1;
+    
+    	posy = ((rand()%100)%(winwidth-2))+1;
+    	
+    	a = ((rand()%100)%11)+1;
+    
+    	b = ((rand()%100)%11)+1; //random drawing of values
+    
+    	wclear(win);
+
+    	box(win, 0, 0);
+    
+        mvwprintw(win, winwidth/2, winlength/3, "Round %d", i+1); 
+
+        wrefresh(win); 
+        
+        sleep(1);
+
+        wclear(win); 
+
+        box(win, 0, 0);
+   
+   	    mvwprintw(win, (winwidth/2)-1, winlength/3, "get ready !");   
+   	
+   	    wrefresh(win); 
+   	
+   	    sleep(1);
+   	
+   	    wclear(win);
+
+    	box(win, 0, 0);
+   	
+   	    sleep(random_t);
+   	
+   	    mvwprintw(win, posy, posx, "%dx%d=?", a, b);  // display of the operation at the coordinate draw randomly
+   	
+   	    wrefresh(win); 
+   	
+   	    usleep(ms_time);
+   	
+   	    wclear(win);
+
+    	box(win, 0, 0);
+    	
+    	echo();
+    	
+    	mvwprintw(win, winwidth/2, winlength/3, "Enter the result : "); 
+
+        wrefresh(win);  
+    	
+    	wgetnstr(win, result, 3);
+    	
+    	noecho();
+    	
+        iresult = atoi(result);
+        
+        if(iresult == a*b){ // If the player input is correct the task continue
+        
+        	wclear(win);
+
+    		box(win, 0, 0);
+        
+        	mvwprintw(win, winwidth/2, winlength/3, "Round success !");  
+        	
+        	wrefresh(win); 
+        	
+        	sleep(1); 
+        
+        }
+        else{
+        
+        	wclear(win);
+
+    		box(win, 0, 0);
+        
+        	mvwprintw(win, winwidth/2, winlength/3, "TASK FAILED !");  
+        	
+        	wrefresh(win); 
+        	
+        	sleep(1); 
+        	
+        	return 0;
+        }
+    	
+    } 
+    
+    wclear(win);
+
+    box(win, 0, 0);
+       
+    mvwprintw(win, winwidth/2, winlength/3, "TASK 5 COMPLETE !");  
+        	
+    wrefresh(win); 
+        	
+    sleep(1); 
+
+    return 1;
+	
 }
 
 
@@ -2719,6 +2859,8 @@ int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued, Playe
         }
 
         if(taskeffectued == 4){
+
+            ex = (minigame5(task, winwidth/2, winwidth-20));
         
         }
     }
@@ -2756,7 +2898,7 @@ int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued, Playe
 }
 
 
-void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwidth){
+void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwidth, int maxroomwidth, int maxroomlength, int minroom, int isloaded ){
     
 
     wclear(win);
@@ -2811,14 +2953,14 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
 
 
-    int lenght_max_room =  18;
-    int width_max_room = 9;
+    int lenght_max_room =  maxroomlength;
+    int width_max_room = maxroomwidth;
 
     
 
 
 
-    int tot_room = ((rand()%100)%10)+20;
+    int tot_room = ((rand()%100)%10)+minroom;
     int tot_door = tot_room -1;
     int nb_door = 4;
     int place = 0;
@@ -3670,21 +3812,98 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
 
 
+void setting(WINDOW * win, int winwidth, int winlendth ,int * maxroomwidth, int * maxroomlength, int * minroom){
+
+    int ch = 0;
+
+    int exitCond = -1;
+
+    int y = 0;
+
+    while(exitCond == -1){
+
+        wclear(win);
+
+        if(y == 0){
+            mvwprintw(win, 5, winlendth/5, "Maximum Room width : <-[%d]-> ", *maxroomwidth);
+            mvwprintw(win, 5 + 4, winlendth/5, "Maximum Room length : %d ", *maxroomlength);
+            mvwprintw(win, 5 + 8, winlendth/5, "Minimum of room : %d ", *minroom);
+            mvwprintw(win, 5 + 10, winlendth/4, "<┘ TO LEAVE");
+        }
+
+        if(y == 1){
+
+            mvwprintw(win, 5, winlendth/5, "Maximum Room width : %d ", *maxroomwidth);
+            mvwprintw(win, 5 + 4, winlendth/5, "Maximum Room length : <-[%d]-> ", *maxroomlength);
+            mvwprintw(win, 5 + 8, winlendth/5, "Minimum of room : %d ", *minroom);
+            mvwprintw(win, 5 + 10, winlendth/4, "<┘ TO LEAVE");
+
+        }
+
+        if(y == 2){
+
+            mvwprintw(win, 5, winlendth/5, "Maximum Room width : %d ", *maxroomwidth);
+            mvwprintw(win, 5 + 4, winlendth/5, "Maximum Room length : %d ", *maxroomlength);
+            mvwprintw(win, 5 + 8, winlendth/5, "Minimum of room : <-[%d]-> ", *minroom);
+            mvwprintw(win, 5 + 10, winlendth/4, "<┘ TO LEAVE");
+
+        }
+
+        box(win, 0, 0);
+
+        wrefresh(win);
+
+        ch = getch();
+
+        if(ch == KEY_UP && y > 0){
+            y--;
+        }
+        if(ch == KEY_DOWN && y < 2){
+            y++;
+        }
+
+        if(ch == KEY_LEFT){
+            if(y == 0 && *maxroomwidth > 3 ){
+                (*maxroomwidth)--;
+            }
+
+            if(y == 1 && *maxroomlength > 3 ){
+                (*maxroomlength)--;
+            }
+
+            if(y == 2 && *minroom > 12){
+                (*minroom)--;
+            }
+        }
+
+        if(ch == KEY_RIGHT){
+            if(y == 0  && *maxroomwidth < 15){
+                (*maxroomwidth)++;
+            }
+
+            if(y == 1 &&  *maxroomlength < 30){
+                (*maxroomlength)++;
+            }
+
+            if(y == 2 &&  *minroom < 30){
+                (*minroom)++;
+            }
+        }
 
 
 
 
-
-void loadSave(WINDOW * win){
-    wclear(win);
-}
-
+        if(ch == ENTER){
+            exitCond = 1;
+        }
 
 
+    }
 
 
-void setting(WINDOW * win){
-    wclear(win);
+    
+
+
 }
 
 
@@ -3739,7 +3958,7 @@ void startAnim(WINDOW * win, int winlength, int winwidth, int posx, int posy, in
 
 
 
-void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy){
+void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy, int * maxroomwidth, int * maxroomlength, int * minroom){
 
     
 
@@ -3780,17 +3999,25 @@ void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy
 
         if (chr == ENTER && posy == y+beg){
             quitAnim(win, winlength, winwidth);
-            startagame(win, winposx, winposy, winlength, winwidth);
+            startagame(win, winposx, winposy, winlength, winwidth, *maxroomwidth, *maxroomlength, *minroom, -1);
             clear();
+            refresh();
             startAnim(win, winlength, winwidth, posx, posy, x, y, beg, space);
         }
         if (chr == ENTER && posy == y+(beg+(space))){
             quitAnim(win, winlength, winwidth);
-            loadSave(win);
+            startagame(win, winposx, winposy, winlength, winwidth, *maxroomwidth, *maxroomlength, *minroom, 1);
+            clear();
+            refresh();
+            startAnim(win, winlength, winwidth, posx, posy, x, y, beg, space);
         }
         if (chr == ENTER && posy == y+(beg+(space*2))){
             quitAnim(win, winlength, winwidth);
-            setting(win);
+            setting(win, winlength, winwidth ,maxroomwidth, maxroomlength, minroom);
+            clear();
+            refresh();
+            startAnim(win, winlength, winwidth, posx, posy, x, y, beg, space);
+            
         }
 
 
@@ -3809,7 +4036,7 @@ void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy
 }
 
 
-//test
+
 
 int main(){
 
@@ -3827,8 +4054,9 @@ int main(){
     int winlength = 30;//LINES - 3;
     int winwidth = 100;//COLS - 6;
 
+
     int maxroomwidth = 9;
-    int mawroomlenght = 18;
+    int maxroomlenght = 18;
 
     int minroom = 20;
 
@@ -3844,7 +4072,7 @@ int main(){
     }
 
 
-    showMenu(win, winlength, winwidth, winposx, winposy);
+    showMenu(win, winlength, winwidth, winposx, winposy, &maxroomwidth, &maxroomlenght, &minroom);
 
 
 
