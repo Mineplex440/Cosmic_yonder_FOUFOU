@@ -135,12 +135,12 @@ Item initItem(){ //Generation of the item
 
     Item i;
     int decider = (rand()%500)%101;
-    if (decider == 0){
+    if ((decider >= 0) && (decider <=4)){
         strcpy(i.name, "LightSaber");
         i.type = 3;
         i.buff = 35;
     }
-    else if((decider >= 1) && (decider <=30)){
+    else if((decider >= 5) && (decider <=30)){
         strcpy(i.name, "Pistol");
         i.type = 0;
         i.buff = 10;
@@ -1412,7 +1412,7 @@ void printItem(int winwidth, int winlength, WINDOW * win, int * stop, Item i){
 
     wclear(item);
 
-    mvwprintw(item, 3, 7, "You dropped a %s !", i.name);
+    mvwprintw(item, 3, 7, "You picked up a %s !", i.name);
 
     box(item, 0, 0);
 
@@ -2897,23 +2897,142 @@ int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued, Playe
 
 }
 
+void savefile(Player p, int countinv, int seed, int size_map_width, int size_map_length, char** map, int equipedshild, int equipedsword, int place, int place_before, int isininv, int nbtask, int taskeffectued, int mobkilled, int lootpicked, int lenght_max_room, int width_max_room, int tot_room, int count, int tot_door, Room * room, int timer, int count_room, int nb_room){
+    FILE *save = fopen(p.name, "w");
 
-void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwidth, int maxroomwidth, int maxroomlength, int minroom, int isloaded ){
+    if (save == NULL) {
+        printf("Not possible to open the save.\n");
+        return;
+    }
+
+    // Saving data of the game in a file
+    fprintf(save, "%d\n", countinv);
+    fprintf(save, "%d\n", p.posy);
+    fprintf(save, "%d\n", p.posx);
+    fprintf(save, "%s\n", p.name);
+    fprintf(save, "%d\n", p.live);
+    fprintf(save, "%d\n", p.playerStat.tot_pv);
+    fprintf(save, "%f\n", p.playerStat.pv);
+    fprintf(save, "%d\n", p.playerStat.atck);
+    fprintf(save, "%d\n", p.playerStat.def);
+    fprintf(save, "%d\n", p.playerStat.level);
+    fprintf(save, "%d\n", p.playerStat.dodge);
+    fprintf(save, "%f\n", p.playerStat.exp);
+    fprintf(save, "%d\n", p.playerStat.speed);
+    fprintf(save, "%d\n", equipedshild);
+    fprintf(save, "%d\n", equipedsword);
+    fprintf(save, "%d\n", place);
+    fprintf(save, "%d\n", place_before);
+    fprintf(save, "%d\n", isininv);
+    fprintf(save, "%d\n", nbtask);
+    fprintf(save, "%d\n", taskeffectued);
+    fprintf(save, "%d\n", mobkilled);
+    fprintf(save, "%d\n", lootpicked);
+    fprintf(save, "%d\n", lenght_max_room);
+    fprintf(save, "%d\n", width_max_room);
+    fprintf(save, "%d\n", tot_room);
+    fprintf(save, "%d\n", tot_door);
+    fprintf(save, "%d\n", count);
+    fprintf(save, "%d\n", timer);
+    fprintf(save, "%d\n", count_room);
+    fprintf(save, "%d\n", nb_room);
+
+
+    
+
+    for (int i = 0; i < tot_room+1; ++i) {
+
+        if(room[i].nb != -1 ){
+
+
+        fprintf(save, "%d ", room[i].nb);
+        fprintf(save, "%d ", room[i].length);
+        fprintf(save, "%d ", room[i].width);
+        fprintf(save, "%d ", room[i].nbevent);
+        for (int j = 0; j < room[i].nbevent; ++j) {
+            fprintf(save, "%d ", room[i].event[j].placex);
+            fprintf(save, "%d ", room[i].event[j].placey);
+            fprintf(save, "%d ", room[i].event[j].typeEvent);
+        }
+        for (int j = 0; j < 4; ++j) {
+            fprintf(save, "%d ", room[i].nbdoor[j].howmuchroom);
+            fprintf(save, "%d ", room[i].nbdoor[j].remote);
+            fprintf(save, "%d ", room[i].nbdoor[j].wall);
+            fprintf(save, "%d", room[i].nbdoor[j].pos);
+        }
+        fprintf(save, "\n");
+        for (int j = 0; j < room[i].width+2; ++j) {
+            for (int p = 0; p < room[i].length+2; ++p) {
+                fprintf(save, "%d ", room[i].room[j][p]);
+            }
+            fprintf(save, "\n");
+        }
+        fprintf(save, "\n");
+        }
+    }
+
+
+    // Saving the inventory
+    for (int i = 0; i < 10; ++i) {
+        fprintf(save, "%s ", p.inventory[i].name);
+        fprintf(save, "%d ", p.inventory[i].type);
+        fprintf(save, "%d ", p.inventory[i].typebuff);
+        fprintf(save, "%d ", p.inventory[i].buff);
+    }
+    fprintf(save, "\n");
+
+    
+    fprintf(save, "%d\n", seed);
+    fprintf(save, "%d\n", size_map_width);
+    fprintf(save, "%d\n", size_map_length);
+
+    // Saving the map
+    for (int i = 0; i < size_map_width+1; ++i) {
+        for (int j = 0; j < size_map_length+1; ++j) {
+            fprintf(save, "%d ", map[i][j]);
+        }
+        fprintf(save, "\n");
+    }
+
+
+
+    fclose(save);
+}
+
+
+void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwidth, int maxroomwidth, int maxroomlength, int minroom, int isloaded, char * name ){
     
 
     wclear(win);
 
     int exitCond = -1;
+
+    int seed;
     
 
     int ch = 0;
 
-    int seed = giveSeed(win, winwidth, winlength);
+    FILE * save = NULL;
+
+    if(isloaded == 1){
+        save = fopen(name, "r");
+
+        if (save == NULL) {
+            printf("Not possible to open the save.\n");
+            return;
+        }
+    }
+
+    if(isloaded != 1){
+        int seed = giveSeed(win, winwidth, winlength);
+        srand(seed);
+    }
+
+    
 
 
-    srand(seed);
 
-    Player j;
+    
 
     int newXp = -1;
     
@@ -2922,26 +3041,21 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     
     int countinv = 0;//How much place in the inventory remain
-    int isininv = FALSE; //For place the item in the inventory
-    for(int i = 0; i<10; i++){
-        j.inventory[i].type = -1;
-        j.inventory[i].name[0] = '\0';
-        j.inventory[i].buff = -1;
-        j.inventory[i].typebuff = -1;
-    }
-    
-    int maxlvl = 20;
-    
+
+
+    Player j;
+
     initPlayer(&j ,j.inventory);
-    player_lvl_up(&j, maxlvl);
 
-    j.name = createName(win, winwidth, winlength);
-
-    float dividepv = j.playerStat.pv/(j.playerStat.tot_pv); 
-    
 
     int equipedsword = -1;
     int equipedshild = -1;
+
+    int place = 0;
+    int place_before = -1;
+
+
+    int isininv = FALSE; //For place the item in the inventory
 
     int nbtask = 0;
     int taskeffectued = 0;
@@ -2950,22 +3064,56 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     int lootpicked = 0;
 
-
-
-
     int lenght_max_room =  maxroomlength;
     int width_max_room = maxroomwidth;
 
-    
-
-
-
     int tot_room = ((rand()%100)%10)+minroom;
     int tot_door = tot_room -1;
-    int nb_door = 4;
-    int place = 0;
-    int place_before = -1;
+
+
     int count = 0;
+
+    int timer = 900;
+
+    int countroom = 0;
+
+    int nb_door = 4;
+
+    if(isloaded == 1){
+        fscanf(save, "%d", &countinv);
+        fscanf(save, "%d", &j.posy);
+        fscanf(save, "%d", &j.posx);
+        fscanf(save, "%s", j.name);
+        fscanf(save, "%d", &j.live);
+        fscanf(save, "%d", &j.playerStat.tot_pv);
+        fscanf(save, "%f", &j.playerStat.pv);
+        fscanf(save, "%d", &j.playerStat.atck);
+        fscanf(save, "%d", &j.playerStat.def);
+        fscanf(save, "%d", &j.playerStat.level);
+        fscanf(save, "%d", &j.playerStat.dodge);
+        fscanf(save, "%f", &j.playerStat.exp);
+        fscanf(save, "%d", &j.playerStat.speed);
+        fscanf(save, "%d", &equipedshild);
+        fscanf(save, "%d", &equipedsword);
+        fscanf(save, "%d", &place);
+        fscanf(save, "%d", &place_before);
+        fscanf(save, "%d", &isininv);
+        fscanf(save, "%d", &nbtask);
+        fscanf(save, "%d", &taskeffectued);
+        fscanf(save, "%d", &mobkilled);
+        fscanf(save, "%d", &lootpicked);
+        fscanf(save, "%d", &lenght_max_room);
+        fscanf(save, "%d", &width_max_room);
+        fscanf(save, "%d", &tot_room);
+        fscanf(save, "%d", &tot_door);
+        tot_room++;
+        fscanf(save, "%d", &count);
+        fscanf(save, "%d", &timer);
+        fscanf(save, "%d", &countroom);
+        fscanf(save, "%d", &nb_door);
+    }
+
+
 
     Room * room = NULL;
 
@@ -2976,22 +3124,69 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         exit(6);
     }
 
-    for(int i = 0; i<tot_room; i++){
-        room[i].nbdoor = NULL;
+    if(isloaded == 1){
+
+        int loadroom = 0;
+
+        for(int i = 0; i < countroom ; i++){
+
+            fscanf(save, "%d", &loadroom);
+            room[loadroom].nb = loadroom;
+            fscanf(save, "%d", &room[loadroom].length);
+            fscanf(save, "%d", &room[loadroom].width);
+            fscanf(save, "%d", &room[loadroom].nbevent);
+
+            for(int j = 0; j<room[loadroom].nbevent ;j++){
+                fscanf(save, "%d", &room[loadroom].event[j].placex);
+                fscanf(save, "%d", &room[loadroom].event[j].placey);
+                fscanf(save, "%d", &room[loadroom].event[j].typeEvent);
+            }
+
+            for(int j = 0; j<4; j++){
+
+                fscanf(save, "%d", &room[loadroom].nbdoor[j].howmuchroom);
+                fscanf(save, "%d", &room[loadroom].nbdoor[j].remote);
+                fscanf(save, "%d", &room[loadroom].nbdoor[j].wall);
+                fscanf(save, "%d", &room[loadroom].nbdoor[j].pos);
+
+            }
+
+            for (int j = 0; j < room[i].width+2; ++j) {
+                for (int p = 0; p < room[i].length+2; ++p) {
+                    fscanf(save, "%s", &room[i].room[j][p]);
+                }
+                fscanf(save, "");
+            }
+
+            fscanf(save, "");
+
+        }
+
+        for(int i = 0; i<10; i++){
+
+            fscanf(save, "%s", j.inventory[i].name);
+            fscanf(save, "%d", &j.inventory[i].type);
+            fscanf(save, "%d", &j.inventory[i].typebuff);
+            fscanf(save, "%d", &j.inventory[i].buff);
+
+        }
+        fscanf(save, "");
+
     }
     
-    tot_room -= 1; 
-
-
-    j.posx = 0;
-    j.posy = 0;
     
-
     
-
-
     int size_map_width = (((tot_room+2) * width_max_room) * 2);
     int size_map_length = ((tot_room+2)*lenght_max_room)*2;
+
+    if(isloaded == 1){
+        fscanf(save, "%d", &seed);
+        srand(seed);
+        fscanf(save, "%d", &size_map_width);
+        fscanf(save, "%d", &size_map_length);
+    }
+
+
 
 
     char ** map = NULL;
@@ -2999,7 +3194,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
     map = calloc(size_map_width+1 ,sizeof(char*));
 
     if(map == NULL){
-        printf("Error with the allocation of the room");
+        printf("Error with the allocation of the map");
         exit(7);
     }
 
@@ -3011,8 +3206,94 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             exit(8);
         }
     }
+
+    if(isloaded == 1){
+        for (int i = 0; i < size_map_width+1; ++i) {
+            for (int j = 0; j < size_map_length+1; ++j) {
+                fscanf(save, "%s", &map[i][j]);
+            }
+            fscanf(save, "");
+        }
+    }
     
-    createRoom(room+place ,width_max_room, lenght_max_room, tot_room ,-1 ,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length, &nbtask);
+    
+
+
+    
+    
+
+
+
+    
+
+
+
+    float dividepv = j.playerStat.pv/(j.playerStat.tot_pv); 
+
+    int maxlvl = 20;
+
+    
+
+    
+
+    
+
+
+
+
+    
+
+    
+
+
+
+    
+    
+    
+    
+    if(isloaded != 1){
+        
+        j.name = createName(win, winwidth, winlength);
+
+        for(int i = 0; i<10; i++){
+            j.inventory[i].type = -1;
+            j.inventory[i].name[0] = '\0';
+            j.inventory[i].buff = -1;
+            j.inventory[i].typebuff = -1;
+        }
+
+
+
+    
+
+        for(int i = 0; i<tot_room; i++){
+            room[i].nb = -1;
+            room[i].nbdoor = NULL;
+        }
+
+    
+     
+
+    
+        
+        j.posx = 0;
+        j.posy = 0;
+    }
+    
+    tot_room -= 1;
+
+    
+
+
+    
+
+
+    
+    
+    if(isloaded != 1){
+        createRoom(room+place ,width_max_room, lenght_max_room, tot_room ,-1 ,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length, &nbtask);
+        countroom++;
+    }
 
 /*
     int placementx = (tot_room+2)/2;
@@ -3047,7 +3328,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     placeRoom(map, size_map_width, size_map_length, -1, room[place], j.posx, j.posy, winwidth, winlength);
 
-    int timer = 900;
+    
 
     int t = (time(NULL));
 
@@ -3288,12 +3569,14 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
                     if(createRoom(room+place,width_max_room, lenght_max_room, tot_room,0,nb_door, tot_door, place, place_before, &count, j.posx, j.posy, map, size_map_width, size_map_length, &nbtask) == 0){
                         phantomishere(winwidth, winlength, win, &stop);
+                        room[place].nb = -1;
                         place = place_before;
                         j.posy -= 3;
 
                     }
                     else{
                         placeRoom(map, size_map_width, size_map_length, 2, room[place], j.posx, j.posy, winwidth, winlength);
+                        countroom++;
                     }
                     
                 }
@@ -3408,6 +3691,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     }
                     else{
                         placeRoom(map, size_map_width, size_map_length, 0, room[place], j.posx, j.posy, winwidth, winlength);
+                        countroom++;
                     }
                     
                 }
@@ -3519,6 +3803,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     }
                     else{
                       placeRoom(map, size_map_width, size_map_length, 3, room[place], j.posx, j.posy, winwidth, winlength);  
+                      countroom++;
                     }
                     
                 }
@@ -3629,6 +3914,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
                     }
                     else{
                         placeRoom(map, size_map_width, size_map_length, 1, room[place], j.posx, j.posy, winwidth, winlength);
+                        countroom++;
                     }
                     
                 }
@@ -3795,8 +4081,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     }
 
-    if(exitCond == 2){
-        //NO SAVE
+    if(exitCond != 2){
+        savefile(j, countinv, seed, size_map_width, size_map_length, map, equipedshild, equipedsword, place, place_before, isininv, nbtask, taskeffectued, mobkilled, lootpicked, lenght_max_room, width_max_room, tot_room, count, tot_door, room, timer-(te-t-stop), countroom, nb_door);
     }
 
 
@@ -3964,6 +4250,8 @@ void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy
 
     int chr = 0;
 
+    char * name = NULL;
+
     
 
     int x = (winwidth/2)-10;
@@ -3999,14 +4287,18 @@ void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy
 
         if (chr == ENTER && posy == y+beg){
             quitAnim(win, winlength, winwidth);
-            startagame(win, winposx, winposy, winlength, winwidth, *maxroomwidth, *maxroomlength, *minroom, -1);
+            startagame(win, winposx, winposy, winlength, winwidth, *maxroomwidth, *maxroomlength, *minroom, -1, "NULL");
             clear();
             refresh();
             startAnim(win, winlength, winwidth, posx, posy, x, y, beg, space);
         }
         if (chr == ENTER && posy == y+(beg+(space))){
             quitAnim(win, winlength, winwidth);
-            startagame(win, winposx, winposy, winlength, winwidth, *maxroomwidth, *maxroomlength, *minroom, 1);
+            
+            name = createName(win, winwidth, winlength);
+
+
+            startagame(win, winposx, winposy, winlength, winwidth, *maxroomwidth, *maxroomlength, *minroom, 1, name);
             clear();
             refresh();
             startAnim(win, winlength, winwidth, posx, posy, x, y, beg, space);
