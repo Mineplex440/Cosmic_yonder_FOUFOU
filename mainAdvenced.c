@@ -2288,7 +2288,7 @@ int minigame1(WINDOW * win, int winwidth, int winlength){
 
     wclear(win);
 
-    mvwprintw(win, winwidth/2, winlength/3, "TASK 1");
+    mvwprintw(win, winwidth/2, winlength/3, "TASK 5");
 
     box(win, 0, 0);
 
@@ -2689,7 +2689,7 @@ int minigame5(WINDOW * win, int winwidth, int winlength){
 
     box(win, 0, 0);
 
-    mvwprintw(win, winwidth/2, winlength/3, "TASK 5");    
+    mvwprintw(win, winwidth/2, winlength/3, "TASK 1");    
 
     wrefresh(win);
 
@@ -2821,7 +2821,7 @@ int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued, Playe
     }
 
     if(taskeffectued == 0){
-        ex = (minigame1(task, winlength/2, winwidth-20));
+        ex = (minigame5(task, winlength/2, winwidth-20));
     }
 
     if(play.playerStat.level >= 1){
@@ -2860,7 +2860,7 @@ int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued, Playe
 
         if(taskeffectued == 4){
 
-            ex = (minigame5(task, winwidth/2, winwidth-20));
+            ex = (minigame1(task, winwidth/2, winwidth-20));
         
         }
     }
