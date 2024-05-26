@@ -3359,6 +3359,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
 
         mvwprintw(stdscr, winposy-1, winposx+(winwidth/2)-13, "匚ㄖ丂爪丨匚  ㄚㄖ几ᗪ乇尺\n");
+        mvwprintw(stdscr, winposy-1, winposx+(winwidth/2)+40, "Task : %d/5", taskeffectued);
         mvwprintw(stdscr, winposy-1, winposx+1, "CURRENT SEED : %d", seed);
         mvwprintw(stdscr, winlength+winposy+1, winposx+1, "TIME : %d min, %d sec", tim.min, tim.sec);
         mvwprintw(stdscr, winlength+winposy+1, winposx+30, "HP : %.0f/%d", j.playerStat.pv, j.playerStat.tot_pv);
@@ -3410,40 +3411,6 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         mvwprintw(stdscr, 18,  winwidth+winposx+2, "THE PAUSE MENU");
 
         mvwprintw(stdscr, 22,  winwidth+winposx+2, "<┘ TO INTERACT");
-
-
-/*
-
-        mvwprintw(stdscr, 3,  winwidth+winposx+2, "howmuchroom  : %d", (room+place)->nbdoor[0].howmuchroom);
-        mvwprintw(stdscr, 4,  winwidth+winposx+2, "pos : %d", (room+place)->nbdoor[0].pos);
-        mvwprintw(stdscr, 5,  winwidth+winposx+2, "wall : %d", (room+place)->nbdoor[0].wall);
-        mvwprintw(stdscr, 6,  winwidth+winposx+2, "remote : %d", (room+place)->nbdoor[0].remote);
-
-        mvwprintw(stdscr, 8,  winwidth+winposx+2, "howmuchroom  : %d", (room+place)->nbdoor[1].howmuchroom);
-        mvwprintw(stdscr, 9,  winwidth+winposx+2, "pos : %d", (room+place)->nbdoor[1].pos);
-        mvwprintw(stdscr, 10,  winwidth+winposx+2, "wall : %d", (room+place)->nbdoor[1].wall);
-        mvwprintw(stdscr, 11,  winwidth+winposx+2, "remote : %d", (room+place)->nbdoor[1].remote);
-
-        mvwprintw(stdscr, 13,  winwidth+winposx+2, "howmuchroom  : %d", (room+place)->nbdoor[2].howmuchroom);
-        mvwprintw(stdscr, 14,  winwidth+winposx+2, "pos : %d", (room+place)->nbdoor[2].pos);
-        mvwprintw(stdscr, 15,  winwidth+winposx+2, "wall : %d", (room+place)->nbdoor[2].wall);
-        mvwprintw(stdscr, 16,  winwidth+winposx+2, "remote : %d", (room+place)->nbdoor[2].remote);
-
-        mvwprintw(stdscr, 18,  winwidth+winposx+2, "howmuchroom  : %d", (room+place)->nbdoor[3].howmuchroom);
-        mvwprintw(stdscr, 19,  winwidth+winposx+2, "pos : %d", (room+place)->nbdoor[3].pos);
-        mvwprintw(stdscr, 20,  winwidth+winposx+2, "wall : %d", (room+place)->nbdoor[3].wall);
-        mvwprintw(stdscr, 21,  winwidth+winposx+2, "remote : %d", (room+place)->nbdoor[3].remote);
-        
-        mvwprintw(stdscr, 23,  winwidth+winposx+2, "tot room : %d", tot_room+1);
-        mvwprintw(stdscr, 24,  winwidth+winposx+2, "tot door : %d", tot_door);
-        mvwprintw(stdscr, 25,  winwidth+winposx+2, "nb door : %d", nb_door);
-
-        mvwprintw(stdscr, 26,  winwidth+winposx+2, "event 1 x : %d", (room+place)->event[0].placex);
-        mvwprintw(stdscr, 27,  winwidth+winposx+2, "event 1 y : %d", (room+place)->event[0].placey);
-        mvwprintw(stdscr, 28,  winwidth+winposx+2, "event 2 x : %d", (room+place)->event[1].placex);
-        mvwprintw(stdscr, 29,  winwidth+winposx+2, "event 2 y : %d", (room+place)->event[1].placey);
-        mvwprintw(stdscr, 30,  winwidth+winposx+2, "count : %d", count);
-    */
 
         
 
@@ -4302,7 +4269,7 @@ void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy
         if (chr == ENTER && posy == y+(beg+(space))){
             quitAnim(win, winlength, winwidth);
             
-            
+
             name = createName(win, winwidth, winlength);
 
 
