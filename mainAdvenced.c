@@ -647,6 +647,9 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                     if(actual_room->nbdoor[2].pos > j && actual_room->nbdoor[2].pos > 1 && actual_room->nbdoor[2].pos <= actual_room->length){
                         modifdoor++;
                     }
+                    else{
+                        modifdoor++;
+                    }
                 }
             }
         }
@@ -681,14 +684,13 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                         actual_room->nbdoor[2].pos--;
                     }
                 }
-
-
-
-            
-
-            if(actual_room->nbdoor[2].pos > actual_room->length && actual_room->nbdoor[2].pos > 1){
-                    actual_room->nbdoor[2].pos--;
+            else if(modifdoor < 0){
+                if(actual_room->nbdoor[2].pos > actual_room->length && actual_room->nbdoor[2].pos > 1){
+                    actual_room->nbdoor[2].pos++;
+                }
             }
+
+
             
             if(actual_room->nbdoor[1].pos > actual_room->width && actual_room->nbdoor[1].pos > 1){
                     actual_room->nbdoor[1].pos--;
@@ -728,6 +730,9 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                     if(actual_room->nbdoor[3].pos > i && actual_room->nbdoor[3].pos > 1 && actual_room->nbdoor[3].pos <= actual_room->width){
                         modifdoor++;
                     }
+                    else{
+                        modifdoor--;
+                    }
                 }
             }
         }
@@ -745,6 +750,11 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                         actual_room->nbdoor[3].pos--;
                     }
                 }
+            else if(modifdoor < 0){
+                if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[3].pos > 1){
+                    actual_room->nbdoor[3].pos++;
+                }
+            }
                 
             
             if(actual_room->width > 3){
@@ -758,9 +768,7 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                 modifw++;
             }
             
-            if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[3].pos > 1){
-                    actual_room->nbdoor[3].pos--;
-                }
+            
             if(actual_room->nbdoor[1].pos > actual_room->width && actual_room->nbdoor[1].pos > 1){
                     actual_room->nbdoor[1].pos--;
                 }
@@ -797,6 +805,9 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                         if(actual_room->nbdoor[0].pos > j && actual_room->nbdoor[0].pos > 1 && actual_room->nbdoor[0].pos <= actual_room->length){
                             modifdoor++;
                         }
+                        else{
+                            modifdoor--;
+                        }
                     }
                 }
             }
@@ -829,12 +840,15 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                             actual_room->nbdoor[0].pos--;
                         }
                     }
-
-
-
-                if(actual_room->nbdoor[0].pos > 1 && actual_room->nbdoor[0].pos > actual_room->length){
-                    actual_room->nbdoor[0].pos--;
+                else if(modifdoor < 0){
+                    if(actual_room->nbdoor[0].pos > 1 && actual_room->nbdoor[0].pos > actual_room->length){
+                        actual_room->nbdoor[0].pos++;
+                    }
                 }
+
+
+
+                
 
                 if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[3].pos > 1){
                     actual_room->nbdoor[3].pos--;
@@ -873,6 +887,9 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                     if(actual_room->nbdoor[1].pos > i && actual_room->nbdoor[1].pos > 1 && actual_room->nbdoor[1].pos <= actual_room->width){
                             modifdoor++;
                     }
+                    else{
+                        modifdoor--;
+                    }
                     first++;
                 }
             }
@@ -897,6 +914,12 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                         actual_room->nbdoor[1].pos--;
                     }
                 }
+            else if(modifdoor < 0){
+                if(actual_room->nbdoor[1].pos > 1 && actual_room->nbdoor[1].pos > actual_room->width){
+                    actual_room->nbdoor[1].pos++;
+                }
+
+            }
                 
             
             if(actual_room->width > 3){
@@ -916,9 +939,7 @@ int iscolide(char ** map, int map_width, int map_length, Room * actual_room,int 
                 modifw++;
             }
             
-            if(actual_room->nbdoor[1].pos > 1 && actual_room->nbdoor[1].pos > actual_room->width){
-                actual_room->nbdoor[1].pos--;
-            }
+            
 
             if(actual_room->nbdoor[3].pos > actual_room->width && actual_room->nbdoor[3].pos > 1){
                     actual_room->nbdoor[3].pos--;
@@ -1141,12 +1162,32 @@ int createRoom(Room * law, int width_max_room, int lenght_max_room,int realtot_d
                 law->event[i].placey = (((rand()%100)%(law->width-2))+2);
             }
         }
+
+
+        law->event[i].typeEvent = (rand()%500)%101;
+
+        
         if(*nbtask < 5){
-            law->event[i].typeEvent = (rand()%100)%3; // Random pick of the type of event
+            if(law->event[i].typeEvent >= 0 && law->event[i].typeEvent<=50){
+                law->event[i].typeEvent = 2;
+            }
+            else if (law->event[i].typeEvent >= 51 && law->event[i].typeEvent<=70){
+                law->event[i].typeEvent = 1;
+            }
+            else{
+                law->event[i].typeEvent = 0;
+            }
         }
         else{
-            law->event[i].typeEvent = (rand()%100)%2;
+            if(law->event[i].typeEvent >= 0 && law->event[i].typeEvent<=69){
+                law->event[i].typeEvent = 0;
+            }
+            else{
+                law->event[i].typeEvent = 1;
+            }
         }
+
+
 
         if(law->event[i].typeEvent == 2){
             (*nbtask)++;
@@ -2259,7 +2300,7 @@ int minigame1(WINDOW * win, int winwidth, int winlength){
 
     mvwprintw(win, winwidth/2, winlength/3, "YOU NEED TO REBOOT THE SYSTEM");
 
-    mvwprintw(win, (winwidth/2)+2, winlength/10, "<┘ TO CONFIRM | GIVE THE ORDER '/REBOOT_SYS.exe' : ");
+    mvwprintw(win, (winwidth/2)+2, winlength/10, "<┘ TO CONFIRM | GIVE THE ORDER '/REB00T_SYS.exe' : ");
 
     box(win, 0, 0);
 
@@ -2271,7 +2312,7 @@ int minigame1(WINDOW * win, int winwidth, int winlength){
 
         
 
-    while(strcmp(c, "/REBOOT_SYS.exe") != 0 && ex < 3){
+    while(strcmp(c, "/REB00T_SYS.exe") != 0 && ex < 3){
 
         ex++;
 
@@ -2281,7 +2322,7 @@ int minigame1(WINDOW * win, int winwidth, int winlength){
 
         mvwprintw(win, winwidth/2, winlength/3, "YOU NEED TO REBOOT THE SYSTEM");
 
-        mvwprintw(win, (winwidth/2)+2, winlength/5, "<┘ TO CONFIRM | GIVE THE ORDER '/REBOOT_SYS.exe' : ");
+        mvwprintw(win, (winwidth/2)+2, winlength/10, "<┘ TO CONFIRM | GIVE THE ORDER '/REB00T_SYS.exe' : ");
 
         box(win, 0, 0);
 
@@ -2294,9 +2335,31 @@ int minigame1(WINDOW * win, int winwidth, int winlength){
     noecho();
 
     if(ex == 3){
+        wclear(win);
+
+        mvwprintw(win, winwidth/2, winlength/3, "YOU LOOSE");
+
+        box(win, 0, 0);
+
+        wrefresh(win);
+
+        sleep(1);
+        
         return 0;
-    } 
+    }
+
     else{
+
+        wclear(win);
+
+        mvwprintw(win, winwidth/2, winlength/3, "YOU WIN");
+
+        box(win, 0, 0);
+
+        wrefresh(win);
+
+        sleep(1);
+
         return 1;
     }
 
@@ -2330,7 +2393,7 @@ int minigame2(WINDOW * win, int winwidth, int winlength){
     while (ex < 3)
     {
         wclear(win);
-        mvwprintw(win, winwidth/2-2, winlength/3, "%d try remain", ex);
+        mvwprintw(win, winwidth/2-2, winlength/3, "%d try remain", 3-ex);
 
         mvwprintw(win, winwidth/2, winlength/3, "BE PRECISE");
 
@@ -2349,9 +2412,6 @@ int minigame2(WINDOW * win, int winwidth, int winlength){
 
         ch = getch();
 
-        if(ch == KEY_RIGHT && vartuch < 50){
-            vartuch++;
-        }
 
         while (ch == KEY_RIGHT && vartuch < 50)
         {
@@ -2361,9 +2421,9 @@ int minigame2(WINDOW * win, int winwidth, int winlength){
 
 
             wclear(win);
-            mvwprintw(win, winwidth/2-2, winlength/3, "%d try remain", ex);
+            mvwprintw(win, winwidth/2-2, winlength/3, "%d try remain", 3-ex);
 
-             mvwprintw(win, winwidth/2, winlength/3, "BE PRECISE");
+            mvwprintw(win, winwidth/2, winlength/3, "BE PRECISE");
 
             for(int i = 0; i<50; i++){
                 mvwprintw(win, (winwidth/2)+2, winlength/5+i, "-");
@@ -2392,16 +2452,32 @@ int minigame2(WINDOW * win, int winwidth, int winlength){
 
     }
 
-    wclear(win);
+    if(ex == 4){
+        wclear(win);
 
-    mvwprintw(win, winwidth/2, winlength/3, "YOU WIN");
+        mvwprintw(win, winwidth/2, winlength/3, "YOU WIN");
 
-    box(win, 0, 0);
+        box(win, 0, 0);
 
-    wrefresh(win);
+        wrefresh(win);
 
-    sleep(1);
+        sleep(1);
+    }
+
+    else{
+        wclear(win);
+
+        mvwprintw(win, winwidth/2, winlength/3, "YOU LOOSE");
+
+        box(win, 0, 0);
+
+        wrefresh(win);
+
+        sleep(1);
+    }
+
     
+
 
     if(ex == 3){
         return 0;
@@ -2416,7 +2492,11 @@ int minigame3(WINDOW * win, int winwidth, int winlength){
 
     int ch = 0;
 
+    char guess[4] = "NULL";
+
     int ex = 0;
+
+    int mysterynb = (rand()%98)+1;
 
     wclear(win);
 
@@ -2428,11 +2508,105 @@ int minigame3(WINDOW * win, int winwidth, int winlength){
 
     sleep(1);
 
-    return 0;
+    echo();
+
+    while(ex < 10){
+
+
+        wclear(win);
+
+        mvwprintw(win, winwidth/2-2, winlength/3, "%d try remain", 10-ex);
+
+        mvwprintw(win, winwidth/2, winlength/4, "GUESS THE MYSTERY NOMBER : ");
+
+        box(win, 0, 0);
+
+        wgetnstr(win, guess, 2);
+
+        wrefresh(win);
+
+        while (isInt(guess) != 1 && ex < 10){
+
+            ex++;
+
+            wclear(win);
+
+            mvwprintw(win, winwidth/2-2, winlength/3, "%d try remain", 10-ex);
+
+            mvwprintw(win, winwidth/2, winlength/4, "ARE YOU SERIOUS : ");
+
+            box(win, 0, 0);
+
+            wgetnstr(win, guess, 2);
+
+            wrefresh(win);
+            
+        }
+
+        if(atoi(guess) < mysterynb){
+
+            wclear(win);
+
+            mvwprintw(win, winwidth/2, winlength/3, "ITS BIGER");
+
+            box(win, 0, 0);
+
+            wrefresh(win);
+
+            sleep(1);
+
+            ex++;
+        }
+
+        else if(atoi(guess) > mysterynb){
+
+            wclear(win);
+
+            mvwprintw(win, winwidth/2, winlength/3, "ITS SMALLER");
+
+            box(win, 0, 0);
+
+            wrefresh(win);
+
+            sleep(1);
+
+            ex++;
+        }
+
+        else{
+
+            wclear(win);
+
+            mvwprintw(win, winwidth/2, winlength/4, "ITS THE RIGHT NUMBER !");
+
+            box(win, 0, 0);
+
+            wrefresh(win);
+
+            sleep(1);
+
+            ex = 12;
+
+        }
+
+    }
+    
+    noecho();
+
+    if(ex == 12){
+        return 1;
+    }
+    else{
+        return 0;
+    }
+
+    
     
 }
 
 int minigame4(WINDOW * win, int winwidth, int winlength){
+
+    /*Function which is the fourth task of the game, its a simple function who return 1 after execution, she take 3 argument a window, his length and width*/
 
     int ch = 0;
 
@@ -2440,15 +2614,35 @@ int minigame4(WINDOW * win, int winwidth, int winlength){
 
     wclear(win);
 
+    int load = 0;
+    
     mvwprintw(win, winwidth/2, winlength/3, "TASK 4");
-
+    
     box(win, 0, 0);
+    wrefresh(win);
+    sleep(1);
+    
+    for(int i=0;i<5;i++){ 
 
+
+    wclear(win);
+    box(win, 0, 0);
+    mvwprintw(win, winwidth/2, (winlength/5), "DOWNLOADING THE STATION CRITIC FILES : %d/100 ", load);
+    wrefresh(win);
+    sleep(1);
+    load+=25;
+    }
+    
+    wclear(win);
+    box(win, 0, 0);
+    
+    mvwprintw(win, (winwidth/2), winlength/3, "FILES SUCCESFULLY DOWNLOADED !");
+   
     wrefresh(win);
 
     sleep(1);
 
-    return 0;
+    return 1;
     
 }
 
@@ -2473,7 +2667,7 @@ int minigame5(WINDOW * win, int winwidth, int winlength){
 }
 
 
-int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued){
+int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued, Player play){
 
     int ex = -1;
 
@@ -2482,7 +2676,7 @@ int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued){
     task = subwin(win, winlength/2 , winwidth-20, winlength/3, winwidth/8);
 
     if(task == NULL){
-        printf("Error with task1");
+        printf("Error with task");
         exit(21);
     }
 
@@ -2490,21 +2684,63 @@ int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued){
         ex = (minigame1(task, winlength/2, winwidth-20));
     }
 
-    if(taskeffectued == 1){
-        ex = (minigame2(task, winlength/2, winwidth-20));
+    if(play.playerStat.level >= 1){
+
+        if(taskeffectued == 1){
+            ex = (minigame2(task, winlength/2, winwidth-20));
+        }
+
+        if(taskeffectued == 2){
+            ex = minigame3(task,  winlength/2, winwidth-20);
+        }
+    }
+    else if(taskeffectued >= 1 && taskeffectued <= 2){
+
+        wclear(task);
+
+        mvwprintw(task, winlength/4, (winwidth-20)/3, "YOU NEED TO BE LVL 1");
+
+        box(task, 0, 0);
+
+        wrefresh(task);
+
+        sleep(1);
+
+        return 0;
+
     }
 
-    if(taskeffectued == 2){
+    if(play.playerStat.level >= 3){
+
+        if(taskeffectued == 3){
+
+            ex =(minigame4(task, winlength/2, winwidth-20));
         
+        }
+
+        if(taskeffectued == 4){
+        
+        }
+    }
+    else if(taskeffectued >= 3 && taskeffectued <= 4){
+
+        wclear(task);
+
+        mvwprintw(task, winlength/4, (winwidth-20)/3, "YOU NEED TO BE LVL 3");
+
+        box(task, 0, 0);
+
+        wrefresh(task);
+
+        sleep(1);
+
+        return 0;
+
     }
 
-    if(taskeffectued == 3){
-        
-    }
+    
 
-    if(taskeffectued == 4){
-        
-    }
+    
 
     if(ex == 1){
         return 1;
@@ -2512,6 +2748,10 @@ int Inittask(WINDOW * win, int winwidth, int winlength, int taskeffectued){
     else{
         return 0;
     }
+
+    wclear(win);
+
+    wrefresh(win);
 
 }
 
@@ -2727,11 +2967,22 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
         printw("]");
 
 
-    /*
-        mvwprintw(stdscr, 0, winwidth+winposx+2, "We are on the room %d", (room+place)->nb);
-        mvwprintw(stdscr, 1,  winwidth+winposx+2, "length : %d", (room+place)->length);
-        mvwprintw(stdscr, 2,  winwidth+winposx+2, "width : %d", (room+place)->width);
+    
+        mvwprintw(stdscr, 4, winwidth+winposx+2, "← TO GO LEFT");
+        mvwprintw(stdscr, 6,  winwidth+winposx+2, "→ TO GO RIGHT");
+        mvwprintw(stdscr, 8,  winwidth+winposx+2, "↑ TO GO UP");
+        mvwprintw(stdscr, 10,  winwidth+winposx+2, "↓ TO GO DOWN");
 
+        mvwprintw(stdscr, 14,  winwidth+winposx+2, "'i' TO OPEN AND CLOSE");
+        mvwprintw(stdscr, 15,  winwidth+winposx+2, "THE INVENTORY");
+
+        mvwprintw(stdscr, 17,  winwidth+winposx+2, "'Escape' TO OPEN AND CLOSE");
+        mvwprintw(stdscr, 18,  winwidth+winposx+2, "THE PAUSE MENU");
+
+        mvwprintw(stdscr, 22,  winwidth+winposx+2, "<┘ TO INTERACT");
+
+
+/*
 
         mvwprintw(stdscr, 3,  winwidth+winposx+2, "howmuchroom  : %d", (room+place)->nbdoor[0].howmuchroom);
         mvwprintw(stdscr, 4,  winwidth+winposx+2, "pos : %d", (room+place)->nbdoor[0].pos);
@@ -2956,6 +3207,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
                     else{
                         map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        lootpicked++;
                         j.posy--;
                     }
 
@@ -2969,7 +3221,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
-                    if(Inittask(win, winwidth, winlength, taskeffectued) == 1){
+                    if(Inittask(win, winwidth, winlength, taskeffectued, j) == 1){
                         map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
                         taskeffectued++;
                     }
@@ -3063,6 +3315,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
                     if(countinv >= 10){
                         invIsFull(winwidth, winlength, win, &stop);
+                        lootpicked++;
                         j.posy++;
                     }
 
@@ -3081,7 +3334,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
 
-                    if(Inittask(win, winwidth, winlength, taskeffectued) == 1){
+                    if(Inittask(win, winwidth, winlength, taskeffectued, j) == 1){
                         map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
                         taskeffectued++;
                     }
@@ -3173,6 +3426,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
                     if(countinv >= 10){
                         invIsFull(winwidth, winlength, win, &stop);
+                        lootpicked++;
                         j.posx++;
                     }
 
@@ -3190,7 +3444,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
-                    if(Inittask(win, winwidth, winlength, taskeffectued) == 1){
+                    if(Inittask(win, winwidth, winlength, taskeffectued, j) == 1){
                         map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
                         taskeffectued++;
                     }
@@ -3289,6 +3543,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
                     else{
                         map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
+                        lootpicked++;
                         j.posx--;
                     }
 
@@ -3301,7 +3556,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             if(map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] == 'T'){
                 if(doyouwantfight(winwidth, winlength, win, &stop, 2) == 1){
-                    if(Inittask(win, winwidth, winlength, taskeffectued) == 1){
+                    if(Inittask(win, winwidth, winlength, taskeffectued, j) == 1){
                         map[(size_map_width/2) + j.posy][(size_map_length/2) + j.posx] = 0;
                         taskeffectued++;
                     }
@@ -3367,7 +3622,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             exitCond = 2;
         }
 
-        if(taskeffectued == 5 || mobkilled == 10){
+        if(taskeffectued == 5 || mobkilled == 10 || lootpicked == 15){
 
             clear();
             box(win, 0, 0);
@@ -3571,6 +3826,11 @@ int main(){
     int winposy = 2;
     int winlength = 30;//LINES - 3;
     int winwidth = 100;//COLS - 6;
+
+    int maxroomwidth = 9;
+    int mawroomlenght = 18;
+
+    int minroom = 20;
 
 
 
