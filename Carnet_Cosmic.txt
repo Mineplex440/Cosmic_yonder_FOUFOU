@@ -1,0 +1,64 @@
+Carnet de bord Cosmic Yonder : Ethann Pencole / Ariles Amrioui / Gweltaz Collin
+
+Choix du projet le 18 avril 2024.
+
+vacance de paque 
+Prise en mains de git par le groupe
+
+Début du projet le 3/05/2024
+
+Création du github du groupe.
+Relecture de l'ensemble des consigne du projet.
+
+7/05/2024
+Nous avons commencer à chacun travailler sur des fonctionnalités du projet, 
+Tel que crée la seed, affichage de différent menu (Start game), et début approche 
+de la création des salles.
+
+Week-end ascention
+Mise au point du menu de la fenêtre de jeu, 
+Création de salle avec des portes aléatoirements disposées sur les murs fonctionnel.
+Génération des différentes informations de partie (nombre de salle/evenement/porte) foncitonnel.
+
+14/05/2024
+Correction de problème d'affichage dans le terminal (Scintillement).
+-> Ajout de sleep avant les clear et les refresh pour laissé le temps au code de clear 
+puis d'affiché les données rafraichis 
+Ajout de commentaire dans le code.
+
+16/05/2024
+Fix de bugs et seg fault concernant les doors.
+
+17/05/2024
+Avancement sur les portes et les room.
+
+
+Week-end du 18/05/2024
+Ajout des mouvement et appariton de salle sur un meme plan et caméra centré joueur.
+Ajout de la fonction fight et de création de mob modulé au niveau du joueur.
+Premier test réussis de création de makefile.
+
+
+20 21 22 04/2024
+Familiarisation avec le systeme de Makefile
+Ajout des appartition d'évenement (mob/item/task) dans les salles, et de déclanchement de ceux-ci.
+Ajustement de la fenetre de combat.
+Ajout de l'ouverture d'inventaire en jeu et en combat.
+Ajout du bouton "Resume" dans le menu pause.
+Ajout d'Item avec des effet équipable.
+
+
+24/04/2024
+Fix de probleme sur la creation de fenetre
+
+
+25/04/2024
+Créations des différent minijeu pour les tache à effectuer.
+Ajout de condition de fin de partie.
+Victoire : tache effectué.
+Défaite : Timer, mort (on recommence la partie avec l'exp réduis de moitier)
+Ajout d'interaction avec les items.
+
+26/04/2024
+Finalisation des taches (5 a éffectué pour finir le jeu) 
+Finalisation du code (commentaire séparation pour crée le makefile)
