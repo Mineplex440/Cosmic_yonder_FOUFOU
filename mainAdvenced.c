@@ -3007,6 +3007,8 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
     int exitCond = -1;
 
+    int null = 0;
+
     int seed;
     
 
@@ -3151,14 +3153,17 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
 
             }
 
+            int temp = 0;
+
             for (int j = 0; j < room[i].width+2; ++j) {
                 for (int p = 0; p < room[i].length+2; ++p) {
-                    fscanf(save, "%s", &room[i].room[j][p]);
+                    fscanf(save, "%d", &temp);
+                    room[i].room[j][p] = temp;
                 }
-                fscanf(save, "");
+                fscanf(save, "%d", &null);
             }
 
-            fscanf(save, "");
+            fscanf(save, "%d", &null);
 
         }
 
@@ -3170,7 +3175,7 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
             fscanf(save, "%d", &j.inventory[i].buff);
 
         }
-        fscanf(save, "");
+        fscanf(save, "%d", &null);
 
     }
     
@@ -3208,11 +3213,13 @@ void startagame(WINDOW * win, int winposx, int winposy, int winlength, int winwi
     }
 
     if(isloaded == 1){
+        int temp = 0;
         for (int i = 0; i < size_map_width+1; ++i) {
             for (int j = 0; j < size_map_length+1; ++j) {
-                fscanf(save, "%s", &map[i][j]);
+                fscanf(save, "%d", &temp);
+                map[i][j] = temp;
             }
-            fscanf(save, "");
+            fscanf(save, "%d", &null);
         }
     }
     
@@ -4294,6 +4301,7 @@ void showMenu(WINDOW *win, int winlength, int winwidth, int winposx, int winposy
         }
         if (chr == ENTER && posy == y+(beg+(space))){
             quitAnim(win, winlength, winwidth);
+            
             
             name = createName(win, winwidth, winlength);
 
